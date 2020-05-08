@@ -215,13 +215,24 @@ namespace GmicSharp
                 updateProgressTimer = new Timer(OnUpdateProgress, null, 1000, 250);
             }
 
-            gmicRunner.Start(command,
-                             CustomResourcePath,
-                             CustomUserFilePath,
-                             gmicImages,
-                             cancellationToken,
-                             hasProgressEvent);
-
+            try
+            {
+                gmicRunner.Start(command,
+                                 CustomResourcePath,
+                                 CustomUserFilePath,
+                                 gmicImages,
+                                 cancellationToken,
+                                 hasProgressEvent);
+            }
+            catch (OperationCanceledException)
+            {
+                // Stop the update progress timer and let the method exit normally.
+                if (updateProgressTimer != null)
+                {
+                    updateProgressTimer.Dispose();
+                    updateProgressTimer = null;
+                }
+            }
         }
 
         private void GmicRenderingCompleted(object sender, GmicCompletedEventArgs e)
