@@ -115,6 +115,7 @@ namespace GmicSharp
         /// Locks the bitmap in memory for unsafe access to the pixel data.
         /// </summary>
         /// <returns>A <see cref="GmicBitmapLock"/> instance.</returns>
+        /// <exception cref="InvalidOperationException">The bitmap is already locked.</exception>
         public override GmicBitmapLock Lock()
         {
             if (bitmapData != null)
