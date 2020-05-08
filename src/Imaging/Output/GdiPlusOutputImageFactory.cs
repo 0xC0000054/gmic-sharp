@@ -16,14 +16,11 @@ namespace GmicSharp
 {
     internal sealed class GdiPlusOutputImageFactory : IGmicOutputImageFactory
     {
-        public GmicBitmap Create(OutputImageInfo outputImageInfo)
+        public GmicBitmap Create(int width, int height, GmicPixelFormat gmicPixelFormat)
         {
-            int width = outputImageInfo.Width;
-            int height = outputImageInfo.Height;
-
             PixelFormat format;
 
-            switch (outputImageInfo.Format)
+            switch (gmicPixelFormat)
             {
                 case GmicPixelFormat.Gray:
                 case GmicPixelFormat.Bgr24:
@@ -39,7 +36,7 @@ namespace GmicSharp
                     format = PixelFormat.Format32bppArgb;
                     break;
                 default:
-                    throw new InvalidOperationException($"Unsupported { nameof(GmicPixelFormat) } value: { outputImageInfo.Format }.");
+                    throw new InvalidOperationException($"Unsupported { nameof(GmicPixelFormat) } value: { gmicPixelFormat }.");
             }
 
             return new GdiPlusGmicBitmap(width, height, format);

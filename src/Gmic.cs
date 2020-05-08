@@ -316,9 +316,7 @@ namespace GmicSharp
                         throw new InvalidOperationException($"Unsupported { nameof(Interop.NativeImageFormat) } value: { itemInfo.format }.");
                 }
 
-                OutputImageInfo outputImageInfo = new OutputImageInfo(width, height, gmicPixelFormat);
-
-                gmicBitmaps.Add(outputImageFactory.Create(outputImageInfo));
+                gmicBitmaps.Add(outputImageFactory.Create(width, height, gmicPixelFormat));
             }
 
             return gmicBitmaps;

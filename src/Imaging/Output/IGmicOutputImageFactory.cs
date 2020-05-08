@@ -19,8 +19,10 @@ namespace GmicSharp
         /// <summary>
         /// Creates a bitmap from specified output image information.
         /// </summary>
-        /// <param name="outputImageInfo">The output image information.</param>
+        /// <param name="width">The output image width.</param>
+        /// <param name="height">The output image height.</param>
+        /// <param name="gmicPixelFormat">The output image G'MIC pixel format.</param>
         /// <returns>The created bitmap.</returns>
-        GmicBitmap Create(OutputImageInfo outputImageInfo);
+        GmicBitmap Create(int width, int height, GmicPixelFormat gmicPixelFormat);
     }
 }
