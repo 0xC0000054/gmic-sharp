@@ -20,7 +20,7 @@ namespace GmicSharp
     /// </summary>
     /// <threadsafety static="true" instance="false"/>
     /// <seealso cref="IDisposable" />
-    public sealed class Gmic : IDisposable
+    public sealed class Gmic<TGmicBitmap> : IDisposable where TGmicBitmap : GmicBitmap
     {
         private GmicImageList gmicImages;
         private Timer updateProgressTimer;
@@ -28,25 +28,18 @@ namespace GmicSharp
         private bool disposed;
         private bool progressUpdating;
 #pragma warning disable IDE0032 // Use auto property
-        private IReadOnlyList<GmicBitmap> outputGmicBitmaps;
+        private IReadOnlyList<TGmicBitmap> outputGmicBitmaps;
 #pragma warning restore IDE0032 // Use auto property
 
-        private readonly IGmicOutputImageFactory outputImageFactory;
+        private readonly IGmicOutputImageFactory<TGmicBitmap> outputImageFactory;
         private readonly GmicRunner gmicRunner;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Gmic"/> class.
-        /// </summary>
-        public Gmic() : this(new GdiPlusOutputImageFactory())
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Gmic"/> class.
+        /// Initializes a new instance of the <see cref="Gmic{TGmicBitmap}" /> class.
         /// </summary>
         /// <param name="outputImageFactory">The factory that creates the output images.</param>
         /// <exception cref="ArgumentNullException"><paramref name="outputImageFactory"/> is null.</exception>
-        public Gmic(IGmicOutputImageFactory outputImageFactory)
+        public Gmic(IGmicOutputImageFactory<TGmicBitmap> outputImageFactory)
         {
             if (outputImageFactory is null)
             {
@@ -100,14 +93,14 @@ namespace GmicSharp
         /// <value>
         /// The output images.
         /// </value>
-        public IReadOnlyList<GmicBitmap> OutputImages => outputGmicBitmaps;
+        public IReadOnlyList<TGmicBitmap> OutputImages => outputGmicBitmaps;
 
         /// <summary>
         /// Adds the input image to this 'G'MIC instance.
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is null.</exception>
-        public void AddInputImage(GmicBitmap bitmap)
+        public void AddInputImage(TGmicBitmap bitmap)
         {
             AddInputImage(bitmap, null);
         }
@@ -118,7 +111,7 @@ namespace GmicSharp
         /// <param name="bitmap">The bitmap.</param>
         /// <param name="name">The image name.</param>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is null.</exception>
-        public void AddInputImage(GmicBitmap bitmap, string name)
+        public void AddInputImage(TGmicBitmap bitmap, string name)
         {
             if (bitmap == null)
             {
@@ -270,9 +263,9 @@ namespace GmicSharp
             GmicDone?.Invoke(this, e);
         }
 
-        private IReadOnlyList<GmicBitmap> CreateOutputBitmaps()
+        private IReadOnlyList<TGmicBitmap> CreateOutputBitmaps()
         {
-            List<GmicBitmap> gmicBitmaps = new List<GmicBitmap>((int)gmicImages.Count);
+            List<TGmicBitmap> gmicBitmaps = new List<TGmicBitmap>((int)gmicImages.Count);
 
             for (int i = 0; i < gmicBitmaps.Capacity; i++)
             {
@@ -362,7 +355,7 @@ namespace GmicSharp
         {
             if (disposed)
             {
-                ExceptionUtil.ThrowObjectDisposedException(nameof(Gmic));
+                ExceptionUtil.ThrowObjectDisposedException(nameof(Gmic<TGmicBitmap>));
             }
         }
     }

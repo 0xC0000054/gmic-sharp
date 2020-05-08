@@ -14,9 +14,21 @@ using System.Drawing.Imaging;
 
 namespace GmicSharp
 {
-    internal sealed class GdiPlusOutputImageFactory : IGmicOutputImageFactory
+    /// <summary>
+    /// The output image factory for <see cref="GdiPlusGmicBitmap"/>.
+    /// </summary>
+    /// <seealso cref="IGmicOutputImageFactory{TGmicBitmap}" />
+    public sealed class GdiPlusOutputImageFactory : IGmicOutputImageFactory<GdiPlusGmicBitmap>
     {
-        public GmicBitmap Create(int width, int height, GmicPixelFormat gmicPixelFormat)
+
+        /// <summary>
+        /// Creates a <see cref="GdiPlusGmicBitmap"/> from specified output image information.
+        /// </summary>
+        /// <param name="width">The output image width.</param>
+        /// <param name="height">The output image height.</param>
+        /// <param name="gmicPixelFormat">The output image G'MIC pixel format.</param>
+        /// <returns>The created bitmap.</returns>
+        public GdiPlusGmicBitmap Create(int width, int height, GmicPixelFormat gmicPixelFormat)
         {
             PixelFormat format;
 

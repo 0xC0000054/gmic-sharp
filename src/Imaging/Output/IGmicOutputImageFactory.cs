@@ -14,7 +14,7 @@ namespace GmicSharp
     /// <summary>
     /// A factory interface for the output images.
     /// </summary>
-    public interface IGmicOutputImageFactory
+    public interface IGmicOutputImageFactory<TGmicBitmap> where TGmicBitmap : GmicBitmap
     {
         /// <summary>
         /// Creates a bitmap from specified output image information.
@@ -23,6 +23,6 @@ namespace GmicSharp
         /// <param name="height">The output image height.</param>
         /// <param name="gmicPixelFormat">The output image G'MIC pixel format.</param>
         /// <returns>The created bitmap.</returns>
-        GmicBitmap Create(int width, int height, GmicPixelFormat gmicPixelFormat);
+        TGmicBitmap Create(int width, int height, GmicPixelFormat gmicPixelFormat);
     }
 }

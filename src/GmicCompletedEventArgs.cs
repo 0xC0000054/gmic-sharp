@@ -14,7 +14,7 @@ using System;
 namespace GmicSharp
 {
     /// <summary>
-    /// The <see cref="EventArgs"/> for the <see cref="Gmic.GmicDone"/> event.
+    /// The <see cref="EventArgs"/> for the <see cref="Gmic{TGmicBitmap}.GmicDone"/> event.
     /// </summary>
     /// <seealso cref="EventArgs" />
     public sealed class GmicCompletedEventArgs : EventArgs

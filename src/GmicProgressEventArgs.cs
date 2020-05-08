@@ -14,7 +14,7 @@ using System;
 namespace GmicSharp
 {
     /// <summary>
-    /// The <see cref="EventArgs"/> used by the <see cref="Gmic.GmicProgress"/> event.
+    /// The <see cref="EventArgs"/> used by the <see cref="Gmic{TGmicBitmap}.GmicProgress"/> event.
     /// </summary>
     /// <seealso cref="EventArgs" />
     public sealed class GmicProgressEventArgs : EventArgs
