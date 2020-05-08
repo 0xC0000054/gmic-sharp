@@ -13,6 +13,7 @@ using GmicSharp.Interop;
 using System;
 using System.ComponentModel;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace GmicSharp
 {
@@ -22,18 +23,14 @@ namespace GmicSharp
 #pragma warning disable IDE0032 // Use auto property
         private bool isRunning;
 #pragma warning restore IDE0032 // Use auto property
-        private readonly GmicWorkerDelegate workerDelegate;
         private readonly SendOrPostCallback workerCompleted;
 
         private float progress;
         private byte shouldAbort;
 
-        private delegate void GmicWorkerDelegate(GmicWorkerArgs args);
-
         public GmicRunner()
         {
             asyncOperation = null;
-            workerDelegate = new GmicWorkerDelegate(GmicWorker);
             workerCompleted = new SendOrPostCallback(GmicWorkerCompleted);
         }
 
@@ -78,7 +75,7 @@ namespace GmicSharp
                                                      imageList,
                                                      token,
                                                      hasProgressEvent);
-            workerDelegate.BeginInvoke(args, null, null);
+            Task.Run(() => GmicWorker(args), token);
         }
 
         private unsafe void GmicWorker(GmicWorkerArgs args)
