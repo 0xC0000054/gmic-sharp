@@ -42,7 +42,7 @@ namespace GmicSharp
 
             CheckPixelFormat(bitmap.PixelFormat);
 
-            this.bitmap = bitmap;
+            this.bitmap = (Bitmap)bitmap.Clone();
             bitmapData = null;
         }
 
