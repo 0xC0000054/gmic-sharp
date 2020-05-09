@@ -46,6 +46,22 @@ namespace GmicSharp
         /// <summary>
         /// Initializes a new instance of the <see cref="GdiPlusGmicBitmap"/> class.
         /// </summary>
+        /// <param name="image">The image.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="image"/> is null.</exception>
+        public GdiPlusGmicBitmap(Image image) : base()
+        {
+            if (image is null)
+            {
+                ExceptionUtil.ThrowArgumentNullException(nameof(image));
+            }
+
+            bitmap = ConvertImageToBitmap(image);
+            bitmapData = null;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GdiPlusGmicBitmap"/> class.
+        /// </summary>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
         /// <param name="format">The GDI+ pixel format.</param>
@@ -186,6 +202,41 @@ namespace GmicSharp
                 }
 
                 return bitmap.Clone(new Rectangle(0, 0, bitmap.Width, bitmap.Height), destinationFormat);
+            }
+        }
+
+        /// <summary>
+        /// Converts the image to a bitmap.
+        /// </summary>
+        /// <param name="image">The image.</param>
+        /// <returns>The converted bitmap.</returns>
+        private static Bitmap ConvertImageToBitmap(Image image)
+        {
+            Bitmap asBitmap = image as Bitmap;
+            if (asBitmap != null)
+            {
+                return CloneOrConvertBitmap(asBitmap);
+            }
+            else
+            {
+                PixelFormat destinationFormat;
+                if (System.Drawing.Image.IsAlphaPixelFormat(image.PixelFormat))
+                {
+                    destinationFormat = PixelFormat.Format32bppArgb;
+                }
+                else
+                {
+                    destinationFormat = PixelFormat.Format24bppRgb;
+                }
+
+                Bitmap bitmap = new Bitmap(image.Width, image.Height, destinationFormat);
+
+                using (Graphics graphics = Graphics.FromImage(bitmap))
+                {
+                    graphics.DrawImage(image, 0, 0);
+                }
+
+                return bitmap;
             }
         }
 
