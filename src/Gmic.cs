@@ -26,7 +26,7 @@ namespace GmicSharp
         private Timer updateProgressTimer;
         private CancellationToken cancellationToken;
         private bool disposed;
-        private bool progressUpdating;
+        private int progressUpdating;
 #pragma warning disable IDE0032 // Use auto property
         private IReadOnlyList<TGmicBitmap> outputGmicBitmaps;
 #pragma warning restore IDE0032 // Use auto property
@@ -329,12 +329,10 @@ namespace GmicSharp
         private void OnUpdateProgress(object state)
 #pragma warning restore IDE0060 // Remove unused parameter
         {
-            if (progressUpdating)
+            if (Interlocked.CompareExchange(ref progressUpdating, 1, 0) != 0)
             {
                 return;
             }
-
-            progressUpdating = true;
 
             float progress = gmicRunner.GetProgress();
 
@@ -357,7 +355,7 @@ namespace GmicSharp
                 gmicRunner.SignalCancelRequest();
             }
 
-            progressUpdating = false;
+            progressUpdating = 0;
         }
 
         private void VerifyNotDisposed()
