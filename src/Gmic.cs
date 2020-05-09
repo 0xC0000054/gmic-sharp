@@ -27,6 +27,7 @@ namespace GmicSharp
         private CancellationToken cancellationToken;
         private bool disposed;
         private int progressUpdating;
+        private object updateProgressTimerCookie;
 #pragma warning disable IDE0032 // Use auto property
         private IReadOnlyList<TGmicBitmap> outputGmicBitmaps;
 #pragma warning restore IDE0032 // Use auto property
@@ -140,6 +141,7 @@ namespace GmicSharp
 
                 if (updateProgressTimer != null)
                 {
+                    updateProgressTimerCookie = null;
                     updateProgressTimer.Dispose();
                     updateProgressTimer = null;
                 }
@@ -205,7 +207,7 @@ namespace GmicSharp
 
             if (hasProgressEvent || cancellationToken.CanBeCanceled)
             {
-                updateProgressTimer = new Timer(OnUpdateProgress, null, 1000, 250);
+                StartUpdateProgressTimer();
             }
 
             try
@@ -220,21 +222,13 @@ namespace GmicSharp
             catch (OperationCanceledException)
             {
                 // Stop the update progress timer and let the method exit normally.
-                if (updateProgressTimer != null)
-                {
-                    updateProgressTimer.Dispose();
-                    updateProgressTimer = null;
-                }
+                StopUpdateProgressTimer();
             }
         }
 
         private void GmicRenderingCompleted(object sender, GmicCompletedEventArgs e)
         {
-            if (updateProgressTimer != null)
-            {
-                updateProgressTimer.Dispose();
-                updateProgressTimer = null;
-            }
+            StopUpdateProgressTimer();
 
             try
             {
@@ -325,10 +319,15 @@ namespace GmicSharp
         }
 
 
-#pragma warning disable IDE0060 // Remove unused parameter
         private void OnUpdateProgress(object state)
-#pragma warning restore IDE0060 // Remove unused parameter
         {
+            // The timer has been stopped.
+            if (state != updateProgressTimerCookie)
+            {
+                return;
+            }
+
+            // Detect reentrant calls to this method.
             if (Interlocked.CompareExchange(ref progressUpdating, 1, 0) != 0)
             {
                 return;
@@ -356,6 +355,25 @@ namespace GmicSharp
             }
 
             progressUpdating = 0;
+        }
+
+        private void StartUpdateProgressTimer()
+        {
+            if (updateProgressTimer == null)
+            {
+                updateProgressTimerCookie = new object();
+                updateProgressTimer = new Timer(OnUpdateProgress, updateProgressTimerCookie, 1000, 250);
+            }
+        }
+
+        private void StopUpdateProgressTimer()
+        {
+            if (updateProgressTimer != null)
+            {
+                updateProgressTimerCookie = null;
+                updateProgressTimer.Dispose();
+                updateProgressTimer = null;
+            }
         }
 
         private void VerifyNotDisposed()
