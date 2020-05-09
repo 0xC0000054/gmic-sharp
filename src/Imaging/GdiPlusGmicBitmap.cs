@@ -32,7 +32,6 @@ namespace GmicSharp
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is null.</exception>
-        /// <exception cref="ArgumentException">The GDI+ pixel format is not supported.</exception>
         public GdiPlusGmicBitmap(Bitmap bitmap) : base()
         {
             if (bitmap is null)
@@ -40,9 +39,7 @@ namespace GmicSharp
                 ExceptionUtil.ThrowArgumentNullException(nameof(bitmap));
             }
 
-            CheckPixelFormat(bitmap.PixelFormat);
-
-            this.bitmap = (Bitmap)bitmap.Clone();
+            this.bitmap = CloneOrConvertBitmap(bitmap);
             bitmapData = null;
         }
 
@@ -55,7 +52,10 @@ namespace GmicSharp
         /// <exception cref="ArgumentException">The GDI+ pixel format is not supported.</exception>
         public GdiPlusGmicBitmap(int width, int height, PixelFormat format) : base()
         {
-            CheckPixelFormat(format);
+            if (!IsSupportedPixelFormat(format))
+            {
+                ExceptionUtil.ThrowArgumentException("The GDI+ PixelFormat must be Format24bppRgb, Format32bppRgb or Format32bppArgb.");
+            }
 
             bitmap = new Bitmap(width, height, format);
             bitmapData = null;
@@ -161,18 +161,44 @@ namespace GmicSharp
         }
 
         /// <summary>
+        /// Clones the bitmap or converts it to a supported format.
+        /// </summary>
+        /// <param name="bitmap">The bitmap.</param>
+        /// <returns>The cloned or converted bitmap.</returns>
+        private static Bitmap CloneOrConvertBitmap(Bitmap bitmap)
+        {
+            PixelFormat format = bitmap.PixelFormat;
+
+            if (IsSupportedPixelFormat(format))
+            {
+                return (Bitmap)bitmap.Clone();
+            }
+            else
+            {
+                PixelFormat destinationFormat;
+                if (System.Drawing.Image.IsAlphaPixelFormat(format))
+                {
+                    destinationFormat = PixelFormat.Format32bppArgb;
+                }
+                else
+                {
+                    destinationFormat = PixelFormat.Format24bppRgb;
+                }
+
+                return bitmap.Clone(new Rectangle(0, 0, bitmap.Width, bitmap.Height), destinationFormat);
+            }
+        }
+
+        /// <summary>
         /// Checks that the GDI+ pixel format is supported.
         /// </summary>
         /// <param name="format">The GDI+ pixel format.</param>
-        /// <exception cref="ArgumentException">The GDI+ pixel format is not supported.</exception>
-        private static void CheckPixelFormat(PixelFormat format)
+        /// <returns><c>true</c> if the GDI+ pixel format is supported; otherwise, <c>false</c></returns>
+        private static bool IsSupportedPixelFormat(PixelFormat format)
         {
-            if (format != PixelFormat.Format24bppRgb &&
-                format != PixelFormat.Format32bppRgb &&
-                format != PixelFormat.Format32bppArgb)
-            {
-                ExceptionUtil.ThrowArgumentException("The GDI+ PixelFormat must be Format24bppRgb, Format32bppRgb or Format32bppArgb.");
-            }
+            return format == PixelFormat.Format24bppRgb ||
+                   format == PixelFormat.Format32bppRgb ||
+                   format == PixelFormat.Format32bppArgb;
         }
     }
 }
