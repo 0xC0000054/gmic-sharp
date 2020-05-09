@@ -240,6 +240,15 @@ namespace GmicSharp
             {
                 if (e.Error == null && !e.Canceled)
                 {
+                    if (outputGmicBitmaps != null)
+                    {
+                        for (int i = 0; i < outputGmicBitmaps.Count; i++)
+                        {
+                            outputGmicBitmaps[i].Dispose();
+                        }
+                        outputGmicBitmaps = null;
+                    }
+
                     outputGmicBitmaps = CreateOutputBitmaps();
 
                     for (int i = 0; i < outputGmicBitmaps.Count; i++)
