@@ -66,7 +66,7 @@ namespace GmicSharp
         /// <param name="height">The height.</param>
         /// <param name="format">The GDI+ pixel format.</param>
         /// <exception cref="ArgumentException">The GDI+ pixel format is not supported.</exception>
-        public GdiPlusGmicBitmap(int width, int height, PixelFormat format) : base()
+        internal GdiPlusGmicBitmap(int width, int height, PixelFormat format) : base()
         {
             if (!IsSupportedPixelFormat(format))
             {

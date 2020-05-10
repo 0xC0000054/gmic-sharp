@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to specify the `GmicBitmap` class that is in use. **(breaking change)**
 * The `IGmicOutputImageFactory` now uses a generic parameter
   to specify the `GmicBitmap` class that is in use.  **(breaking change)**
+* The `GdiPlusGmicBitmap(int, int, PixelFormat)` constructor overload is now internal. **(breaking change)**
 * GDI+ Bitmaps that use an unsupported `PixelFormat` are converted to a
   supported format instead of throwing an exception.
 * Improved the exception documentation for multiple methods.
