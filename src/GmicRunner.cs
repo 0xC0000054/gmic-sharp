@@ -73,8 +73,6 @@ namespace GmicSharp
 
             token.ThrowIfCancellationRequested();
 
-            isRunning = true;
-
             asyncOperation = AsyncOperationManager.CreateOperation(null);
 
             GmicWorkerArgs args = new GmicWorkerArgs(command,
@@ -83,7 +81,26 @@ namespace GmicSharp
                                                      imageList,
                                                      token,
                                                      hasProgressEvent);
-            Task.Run(() => GmicWorker(args), token);
+            Task task = Task.Run(() => GmicWorker(args), token);
+
+            isRunning = TaskIsRunning(task);
+        }
+
+        private static bool TaskIsRunning(Task task)
+        {
+            if (!task.IsCompleted)
+            {
+                switch (task.Status)
+                {
+                    case TaskStatus.Created:
+                    case TaskStatus.WaitingForActivation:
+                    case TaskStatus.WaitingToRun:
+                    case TaskStatus.Running:
+                        return true;
+                }
+            }
+
+            return false;
         }
 
         private unsafe void GmicWorker(GmicWorkerArgs args)
