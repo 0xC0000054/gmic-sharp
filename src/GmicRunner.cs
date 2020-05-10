@@ -71,10 +71,7 @@ namespace GmicSharp
                 ExceptionUtil.ThrowInvalidOperationException("This G'MIC instance is already running.");
             }
 
-            if (token.IsCancellationRequested)
-            {
-                return;
-            }
+            token.ThrowIfCancellationRequested();
 
             isRunning = true;
 
