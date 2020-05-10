@@ -180,10 +180,10 @@ namespace GmicSharp
         /// <exception cref="ArgumentNullException"><paramref name="command"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="command"/> is a empty or contains only white space.</exception>
         /// <exception cref="GmicException">An error occurred when running G'MIC.</exception>
-
         /// <exception cref="InvalidOperationException">
         /// This G'MIC instance is already running.
         /// </exception>
+        /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         public void RunGmic(string command, CancellationToken cancellationToken)
         {
             if (command is null)
@@ -211,20 +211,12 @@ namespace GmicSharp
                 StartUpdateProgressTimer();
             }
 
-            try
-            {
-                gmicRunner.Start(command,
-                                 CustomResourcePath,
-                                 CustomUserFilePath,
-                                 gmicImages,
-                                 cancellationToken,
-                                 hasProgressEvent);
-            }
-            catch (OperationCanceledException)
-            {
-                // Stop the update progress timer and let the method exit normally.
-                StopUpdateProgressTimer();
-            }
+            gmicRunner.Start(command,
+                             CustomResourcePath,
+                             CustomUserFilePath,
+                             gmicImages,
+                             cancellationToken,
+                             hasProgressEvent);
         }
 
         private void GmicRenderingCompleted(object sender, GmicCompletedEventArgs e)
