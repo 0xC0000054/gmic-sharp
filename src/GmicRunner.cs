@@ -48,6 +48,17 @@ namespace GmicSharp
             shouldAbort = 1;
         }
 
+        /// <summary>
+        /// Runs the specified G'MIC command.
+        /// </summary>
+        /// <param name="command">The G'MIC command.</param>
+        /// <param name="customResourcePath">The custom resource path.</param>
+        /// <param name="customUserPath">The custom user path.</param>
+        /// <param name="imageList">The image list.</param>
+        /// <param name="token">The cancellation token.</param>
+        /// <param name="hasProgressEvent"><c>true</c> if the caller whats progress reports; otherwise, <c>false</c>.</param>
+        /// <exception cref="InvalidOperationException">This G'MIC instance is already running.</exception>
+        /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         public void Start(string command,
                           string customResourcePath,
                           string customUserPath,
