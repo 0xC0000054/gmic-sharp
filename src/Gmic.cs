@@ -125,6 +125,16 @@ namespace GmicSharp
         }
 
         /// <summary>
+        /// Clears the input images that have been added this G'MIC instance.
+        /// </summary>
+        public void ClearInputImages()
+        {
+            VerifyNotDisposed();
+
+            gmicImages.Clear();
+        }
+
+        /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         public void Dispose()
