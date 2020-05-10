@@ -204,6 +204,7 @@ namespace GmicSharp
             }
 
             bool hasProgressEvent = GmicProgress != null;
+            this.cancellationToken = cancellationToken;
 
             if (hasProgressEvent || cancellationToken.CanBeCanceled)
             {
