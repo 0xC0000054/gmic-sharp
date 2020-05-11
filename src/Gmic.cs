@@ -40,6 +40,7 @@ namespace GmicSharp
         /// </summary>
         /// <param name="outputImageFactory">The factory that creates the output images.</param>
         /// <exception cref="ArgumentNullException"><paramref name="outputImageFactory"/> is null.</exception>
+        /// <exception cref="GmicException">Unable to create the G'MIC image list.</exception>
         public Gmic(IGmicOutputImageFactory<TGmicBitmap> outputImageFactory)
         {
             if (outputImageFactory is null)
@@ -94,13 +95,24 @@ namespace GmicSharp
         /// <value>
         /// The output images.
         /// </value>
-        public IReadOnlyList<TGmicBitmap> OutputImages => outputGmicBitmaps;
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+        public IReadOnlyList<TGmicBitmap> OutputImages
+        {
+            get
+            {
+                VerifyNotDisposed();
+
+                return outputGmicBitmaps;
+            }
+        }
 
         /// <summary>
         /// Adds the input image to this 'G'MIC instance.
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is null.</exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+        /// <exception cref="OutOfMemoryException">Insufficient memory to add the image.</exception>
         public void AddInputImage(TGmicBitmap bitmap)
         {
             AddInputImage(bitmap, null);
@@ -112,6 +124,8 @@ namespace GmicSharp
         /// <param name="bitmap">The bitmap.</param>
         /// <param name="name">The image name.</param>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is null.</exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+        /// <exception cref="OutOfMemoryException">Insufficient memory to add the image.</exception>
         public void AddInputImage(TGmicBitmap bitmap, string name)
         {
             if (bitmap == null)
@@ -127,6 +141,7 @@ namespace GmicSharp
         /// <summary>
         /// Clears the input images that have been added this G'MIC instance.
         /// </summary>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public void ClearInputImages()
         {
             VerifyNotDisposed();
@@ -177,6 +192,7 @@ namespace GmicSharp
         /// <exception cref="InvalidOperationException">
         /// This G'MIC instance is already running.
         /// </exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         public void RunGmic(string command)
         {
@@ -194,6 +210,7 @@ namespace GmicSharp
         /// <exception cref="InvalidOperationException">
         /// This G'MIC instance is already running.
         /// </exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         public void RunGmic(string command, CancellationToken cancellationToken)
         {
