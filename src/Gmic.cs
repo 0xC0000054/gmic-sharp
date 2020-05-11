@@ -177,6 +177,7 @@ namespace GmicSharp
         /// <exception cref="InvalidOperationException">
         /// This G'MIC instance is already running.
         /// </exception>
+        /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         public void RunGmic(string command)
         {
             RunGmic(command, CancellationToken.None);
