@@ -14,6 +14,10 @@ using System;
 
 namespace GmicSharp
 {
+    /// <summary>
+    /// The native G'MIC image list.
+    /// </summary>
+    /// <seealso cref="System.IDisposable" />
     internal sealed class GmicImageList : IDisposable
     {
 #pragma warning disable IDE0032 // Use auto property
@@ -21,6 +25,10 @@ namespace GmicSharp
 #pragma warning restore IDE0032 // Use auto property
         private bool disposed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GmicImageList"/> class.
+        /// </summary>
+        /// <exception cref="GmicException">Failed to create the native G'MIC image list.</exception>
         public GmicImageList()
         {
             nativeImageList = GmicNative.CreateGmicImageList();
@@ -32,6 +40,14 @@ namespace GmicSharp
             disposed = false;
         }
 
+        /// <summary>
+        /// Gets the number of images in the list.
+        /// </summary>
+        /// <value>
+        /// The number of images in the list.
+        /// </value>
+        /// <exception cref="InvalidOperationException">The native image list handle is invalid.</exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public uint Count
         {
             get
@@ -41,8 +57,17 @@ namespace GmicSharp
             }
         }
 
+        /// <summary>
+        /// Gets the safe image list handle.
+        /// </summary>
+        /// <value>
+        /// The safe image list handle.
+        /// </value>
         public SafeGmicImageList SafeImageListHandle => nativeImageList;
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             if (!disposed)
@@ -53,6 +78,14 @@ namespace GmicSharp
             }
         }
 
+        /// <summary>
+        /// Adds the specified bitmap.
+        /// </summary>
+        /// <param name="bitmap">The bitmap.</param>
+        /// <param name="name">The name.</param>
+        /// <exception cref="InvalidOperationException">The native image list handle is invalid.</exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+        /// <exception cref="OutOfMemoryException">Insufficient memory to add the image.</exception>
         public void Add(GmicBitmap bitmap, string name)
         {
             if (bitmap is null)
@@ -82,6 +115,11 @@ namespace GmicSharp
 
         }
 
+        /// <summary>
+        /// Clears the image list.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The native image list handle is invalid.</exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public void Clear()
         {
             EnsureNativeImageListIsValid();
@@ -89,6 +127,14 @@ namespace GmicSharp
             GmicNative.GmicImageListClear(nativeImageList);
         }
 
+        /// <summary>
+        /// Gets the image information.
+        /// </summary>
+        /// <param name="index">The index.</param>
+        /// <param name="info">The information.</param>
+        /// <exception cref="GmicException">The image list index is invalid.</exception>
+        /// <exception cref="InvalidOperationException">The native image list handle is invalid.</exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public void GetImageInfo(uint index, out GmicImageListItemInfo info)
         {
             EnsureNativeImageListIsValid();
@@ -96,6 +142,14 @@ namespace GmicSharp
             GmicNative.GmicImageListGetImageInfo(nativeImageList, index, out info);
         }
 
+        /// <summary>
+        /// Copies the image at the specified index to the output bitmap.
+        /// </summary>
+        /// <param name="index">The index.</param>
+        /// <param name="bitmap">The bitmap.</param>
+        /// <exception cref="GmicException">The image list index is invalid.</exception>
+        /// <exception cref="InvalidOperationException">The native image list handle is invalid.</exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public void CopyToOutput(uint index, GmicBitmap bitmap)
         {
             if (bitmap is null)
@@ -125,6 +179,11 @@ namespace GmicSharp
 
         }
 
+        /// <summary>
+        /// Ensures the native image list is valid.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The native image list handle is invalid.</exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         private void EnsureNativeImageListIsValid()
         {
             if (disposed)
