@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Added
+## v0.6.0
+
+### Added
 
 * A `ClearInputImages` method to the `Gmic<TGmicBitmap>` class.
 * A `GdiPlusGmicBitmap(Image)` constructor overload.
 * A Changelog. 
 
-## Changed
+### Changed
 
 * Improved type-safety for the `Gmic` class, it now uses a generic parameter
   to specify the `GmicBitmap` class that is in use. **(breaking change)**
@@ -25,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Improved the exception documentation for multiple methods.
 * Replaced `Delegate.BeginInvoke` because it is not supported on .NET Core.
 
-## Fixed
+### Fixed
 
 * Dispose of the previous output bitmaps before setting new ones.
 * A few race conditions related to `System.Threading.Timer`.
@@ -34,10 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * An issue where G'MIC would always be reported as running.
 * An issue that would hang an application that waited for G'MIC to complete.
 
-## Removed
+### Removed
 
 The `OutputImageInfo` structure
-
 
 ## v0.5.0
 
