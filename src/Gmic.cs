@@ -30,10 +30,16 @@ namespace GmicSharp
         private object updateProgressTimerCookie;
 #pragma warning disable IDE0032 // Use auto property
         private IReadOnlyList<TGmicBitmap> outputGmicBitmaps;
+        private string hostName;
 #pragma warning restore IDE0032 // Use auto property
 
         private readonly IGmicOutputImageFactory<TGmicBitmap> outputImageFactory;
         private readonly GmicRunner gmicRunner;
+
+        /// <summary>
+        /// The default host name that gmic-sharp-native uses.
+        /// </summary>
+        private const string DefaultHostName = "gmic-sharp";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Gmic{TGmicBitmap}" /> class.
@@ -88,6 +94,37 @@ namespace GmicSharp
         ///   <c>true</c> if G'MIC is running; otherwise, <c>false</c>.
         /// </value>
         public bool GmicRunning => gmicRunner.IsRunning;
+
+        /// <summary>
+        /// Gets or sets the name of the host application.
+        /// </summary>
+        /// <value>
+        /// The name of the host application.
+        /// </value>
+        /// <remarks>
+        /// G'MIC scripts can use this value to customize their behavior based
+        /// on the on the supported features of a specific host application.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException">The host name is null.</exception>
+        /// <exception cref="ArgumentException">The host name is empty or contains only white space.</exception>
+        public string HostName
+        {
+            get => string.IsNullOrWhiteSpace(hostName) ? DefaultHostName : hostName;
+            set
+            {
+                if (value is null)
+                {
+                    ExceptionUtil.ThrowArgumentNullException(nameof(value));
+                }
+
+                if (value.IsEmptyOrWhiteSpace())
+                {
+                    ExceptionUtil.ThrowArgumentException("The host name is empty or contains only white space.");
+                }
+
+                hostName = value;
+            }
+        }
 
         /// <summary>
         /// Gets the output images.
@@ -242,6 +279,7 @@ namespace GmicSharp
             gmicRunner.Start(command,
                              CustomResourcePath,
                              CustomUserFilePath,
+                             hostName,
                              gmicImages,
                              cancellationToken,
                              hasProgressEvent);

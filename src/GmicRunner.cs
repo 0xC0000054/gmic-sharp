@@ -54,6 +54,7 @@ namespace GmicSharp
         /// <param name="command">The G'MIC command.</param>
         /// <param name="customResourcePath">The custom resource path.</param>
         /// <param name="customUserPath">The custom user path.</param>
+        /// <param name="hostName">The host application name.</param>
         /// <param name="imageList">The image list.</param>
         /// <param name="token">The cancellation token.</param>
         /// <param name="hasProgressEvent"><c>true</c> if the caller whats progress reports; otherwise, <c>false</c>.</param>
@@ -62,6 +63,7 @@ namespace GmicSharp
         public void Start(string command,
                           string customResourcePath,
                           string customUserPath,
+                          string hostName,
                           GmicImageList imageList,
                           CancellationToken token,
                           bool hasProgressEvent)
@@ -78,6 +80,7 @@ namespace GmicSharp
             GmicWorkerArgs args = new GmicWorkerArgs(command,
                                                      customResourcePath,
                                                      customUserPath,
+                                                     hostName,
                                                      imageList,
                                                      token,
                                                      hasProgressEvent);
@@ -119,7 +122,8 @@ namespace GmicSharp
 
                 GmicOptions options = new GmicOptions(args.Command,
                                                       args.CustomResourcePath,
-                                                      args.CustomUserPath);
+                                                      args.CustomUserPath,
+                                                      args.HostName);
 
                 try
                 {
@@ -187,6 +191,7 @@ namespace GmicSharp
             public GmicWorkerArgs(string command,
                                   string customResourcePath,
                                   string customUserPath,
+                                  string hostName,
                                   GmicImageList imageList,
                                   CancellationToken token,
                                   bool hasProgressEvent)
@@ -194,6 +199,7 @@ namespace GmicSharp
                 Command = command;
                 CustomResourcePath = customResourcePath;
                 CustomUserPath = customUserPath;
+                HostName = hostName;
                 ImageList = imageList;
                 Token = token;
                 HasProgressEvent = hasProgressEvent;
@@ -204,6 +210,8 @@ namespace GmicSharp
             public string CustomResourcePath { get; }
 
             public string CustomUserPath { get; }
+
+            public string HostName { get; }
 
             public GmicImageList ImageList { get;  }
 

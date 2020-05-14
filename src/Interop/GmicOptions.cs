@@ -16,7 +16,10 @@ namespace GmicSharp.Interop
     [StructLayout(LayoutKind.Sequential)]
     internal sealed class GmicOptions
     {
-        public unsafe GmicOptions(string commandLine, string customResourcePath, string customUserPath)
+        public unsafe GmicOptions(string commandLine,
+                                  string customResourcePath,
+                                  string customUserPath,
+                                  string hostName)
         {
             if (commandLine is null)
             {
@@ -26,6 +29,8 @@ namespace GmicSharp.Interop
             this.commandLine = commandLine;
             this.customResourcePath = string.IsNullOrWhiteSpace(customResourcePath) ? null : customResourcePath;
             this.customUserPath = string.IsNullOrWhiteSpace(customUserPath) ? null : customUserPath;
+            // The host name can be null, this makes the native code use its default host name.
+            this.hostName = hostName;
             progress = null;
             abort = null;
         }
@@ -38,6 +43,9 @@ namespace GmicSharp.Interop
 
         [MarshalAs(UnmanagedType.LPStr)]
         public string customUserPath;
+
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string hostName;
 
         public unsafe float* progress;
 

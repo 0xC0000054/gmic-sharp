@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+  * Support for changing the host application name seen by G'MIC scripts through the `HostName` property in `Gmic<TGmicBitmap>`.
+
 ## v0.6.0
 
 ### Added
