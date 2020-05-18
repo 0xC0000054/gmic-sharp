@@ -20,6 +20,7 @@ namespace GmicSharp.Interop
         GmicError,
         GmicResourcePathInitFailed,
         GmicUnsupportedChannelCount,
+        ImageListIndexOutOfRange,
         UnknownError
     }
 }

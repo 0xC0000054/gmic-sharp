@@ -243,6 +243,8 @@ namespace GmicSharp.Interop
                     break;
                 case GmicStatus.GmicUnsupportedChannelCount:
                     throw new GmicException("The output G'MIC image has an unsupported number of channels.");
+                case GmicStatus.ImageListIndexOutOfRange:
+                    throw new GmicException("The image list index is not valid.");
                 case GmicStatus.UnknownError:
                 default:
                     throw new GmicException("An unspecified error occurred.");
