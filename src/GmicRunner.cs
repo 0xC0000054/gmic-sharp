@@ -53,7 +53,6 @@ namespace GmicSharp
         /// </summary>
         /// <param name="command">The G'MIC command.</param>
         /// <param name="customResourcePath">The custom resource path.</param>
-        /// <param name="customUserPath">The custom user path.</param>
         /// <param name="hostName">The host application name.</param>
         /// <param name="imageList">The image list.</param>
         /// <param name="token">The cancellation token.</param>
@@ -62,7 +61,6 @@ namespace GmicSharp
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         public void Start(string command,
                           string customResourcePath,
-                          string customUserPath,
                           string hostName,
                           GmicImageList imageList,
                           CancellationToken token,
@@ -79,7 +77,6 @@ namespace GmicSharp
 
             GmicWorkerArgs args = new GmicWorkerArgs(command,
                                                      customResourcePath,
-                                                     customUserPath,
                                                      hostName,
                                                      imageList,
                                                      token,
@@ -122,7 +119,6 @@ namespace GmicSharp
 
                 GmicOptions options = new GmicOptions(args.Command,
                                                       args.CustomResourcePath,
-                                                      args.CustomUserPath,
                                                       args.HostName);
 
                 try
@@ -190,7 +186,6 @@ namespace GmicSharp
         {
             public GmicWorkerArgs(string command,
                                   string customResourcePath,
-                                  string customUserPath,
                                   string hostName,
                                   GmicImageList imageList,
                                   CancellationToken token,
@@ -198,7 +193,6 @@ namespace GmicSharp
             {
                 Command = command;
                 CustomResourcePath = customResourcePath;
-                CustomUserPath = customUserPath;
                 HostName = hostName;
                 ImageList = imageList;
                 Token = token;
@@ -208,8 +202,6 @@ namespace GmicSharp
             public string Command { get; }
 
             public string CustomResourcePath { get; }
-
-            public string CustomUserPath { get; }
 
             public string HostName { get; }
 

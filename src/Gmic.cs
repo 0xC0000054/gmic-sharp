@@ -80,14 +80,6 @@ namespace GmicSharp
         public string CustomResourcePath { get; set; }
 
         /// <summary>
-        /// Gets or sets the G'MIC custom user file path.
-        /// </summary>
-        /// <value>
-        /// The G'MIC custom user file path.
-        /// </value>
-        public string CustomUserFilePath { get; set; }
-
-        /// <summary>
         /// Gets a value indicating whether G'MIC is running.
         /// </summary>
         /// <value>
@@ -278,7 +270,6 @@ namespace GmicSharp
 
             gmicRunner.Start(command,
                              CustomResourcePath,
-                             CustomUserFilePath,
                              hostName,
                              gmicImages,
                              cancellationToken,
