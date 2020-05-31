@@ -36,7 +36,7 @@ namespace GmicSharp.Interop
         [MarshalAs(UnmanagedType.LPStr)]
         public string commandLine;
 
-        [MarshalAs(UnmanagedType.LPStr)]
+        [MarshalAs(UnmanagedType.LPUTF8Str)]
         public string customResourcePath;
 
         [MarshalAs(UnmanagedType.LPStr)]

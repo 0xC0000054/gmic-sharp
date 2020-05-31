@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   * Support for changing the host application name seen by G'MIC scripts through the `HostName` property in `Gmic<TGmicBitmap>`.
 
+### Changed
+
+ * The `CustomResourcePath` property now supports paths non-ASCII characters.
+
 ### Removed
 
  * The `CustomUserFilePath` property in  `Gmic<TGmicBitmap>`.
