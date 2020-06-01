@@ -7,7 +7,7 @@ A .NET wrapper for [G'MIC](https://gmic.eu/).
 * Allows .NET applications to execute G'MIC commands.
 * Supports user-defined custom image types, the default image type uses the GDI+ `Bitmap` class. 
 * Supports progress reporting and cancellation.
-* Supports custom resource directory and user file paths.
+* Supports using a custom resource directory.
 
 ### Native libraries
 
