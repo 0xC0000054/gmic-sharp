@@ -140,6 +140,7 @@ namespace GmicSharp
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is null.</exception>
+        /// <exception cref="InvalidOperationException">Cannot add an input image when G'MIC is running.</exception>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         /// <exception cref="OutOfMemoryException">Insufficient memory to add the image.</exception>
         public void AddInputImage(TGmicBitmap bitmap)
@@ -153,6 +154,7 @@ namespace GmicSharp
         /// <param name="bitmap">The bitmap.</param>
         /// <param name="name">The image name.</param>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is null.</exception>
+        /// <exception cref="InvalidOperationException">Cannot add an input image when G'MIC is running.</exception>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         /// <exception cref="OutOfMemoryException">Insufficient memory to add the image.</exception>
         public void AddInputImage(TGmicBitmap bitmap, string name)
@@ -163,6 +165,11 @@ namespace GmicSharp
             }
 
             VerifyNotDisposed();
+
+            if (gmicRunner.IsRunning)
+            {
+                ExceptionUtil.ThrowInvalidOperationException("Cannot add an input image when G'MIC is running.");
+            }
 
             gmicImages.Add(bitmap, name);
         }

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
  * The `CustomResourcePath` property now supports paths non-ASCII characters.
+ * Throw an exception if `AddInputImage` is called while G'MIC is running.
 
 ### Removed
 
