@@ -13,18 +13,14 @@ using System;
 
 namespace GmicSharp
 {
-    /// <summary>
-    /// The <see cref="EventArgs"/> for the <see cref="Gmic{TGmicBitmap}.GmicDone"/> event.
-    /// </summary>
-    /// <seealso cref="EventArgs" />
-    public sealed class GmicCompletedEventArgs : EventArgs
+    internal sealed class GmicRunnerCompletedEventArgs : EventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="GmicCompletedEventArgs"/> class.
+        /// Initializes a new instance of the <see cref="GmicRunnerCompletedEventArgs"/> class.
         /// </summary>
         /// <param name="error">The error.</param>
         /// <param name="canceled"><c>true</c> if G'MIC was canceled; otherwise, <c>false</c>.</param>
-        public GmicCompletedEventArgs(Exception error, bool canceled)
+        public GmicRunnerCompletedEventArgs(Exception error, bool canceled)
         {
             Error = error;
             Canceled = canceled;

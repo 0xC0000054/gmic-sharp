@@ -24,12 +24,10 @@ namespace GmicSharp
     {
         private GmicImageList gmicImages;
         private Timer updateProgressTimer;
-        private CancellationToken cancellationToken;
         private bool disposed;
         private int progressUpdating;
         private object updateProgressTimerCookie;
 #pragma warning disable IDE0032 // Use auto property
-        private IReadOnlyList<TGmicBitmap> outputGmicBitmaps;
         private string hostName;
 #pragma warning restore IDE0032 // Use auto property
 
@@ -57,19 +55,18 @@ namespace GmicSharp
             this.outputImageFactory = outputImageFactory;
             gmicImages = new GmicImageList();
             gmicRunner = new GmicRunner();
-            gmicRunner.GmicCompleted += new EventHandler<GmicCompletedEventArgs>(GmicRenderingCompleted);
-
+            gmicRunner.Completed += new EventHandler<GmicRunnerCompletedEventArgs>(GmicRunnerCompleted);
         }
 
         /// <summary>
         /// Occurs when G'MIC has finished processing.
         /// </summary>
-        public event EventHandler<GmicCompletedEventArgs> GmicDone;
+        public event EventHandler<RunGmicCompletedEventArgs<TGmicBitmap>> RunGmicCompleted;
 
         /// <summary>
         /// Occurs when G'MIC reports rendering progress.
         /// </summary>
-        public event EventHandler<GmicProgressEventArgs> GmicProgress;
+        public event EventHandler<RunGmicProgressChangedEventArgs> RunGmicProgressChanged;
 
         /// <summary>
         /// Gets or sets the G'MIC custom resource folder path.
@@ -85,7 +82,7 @@ namespace GmicSharp
         /// <value>
         ///   <c>true</c> if G'MIC is running; otherwise, <c>false</c>.
         /// </value>
-        public bool GmicRunning => gmicRunner.IsRunning;
+        public bool IsBusy => gmicRunner.IsBusy;
 
         /// <summary>
         /// Gets or sets the name of the host application.
@@ -115,23 +112,6 @@ namespace GmicSharp
                 }
 
                 hostName = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets the output images.
-        /// </summary>
-        /// <value>
-        /// The output images.
-        /// </value>
-        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
-        public IReadOnlyList<TGmicBitmap> OutputImages
-        {
-            get
-            {
-                VerifyNotDisposed();
-
-                return outputGmicBitmaps;
             }
         }
 
@@ -166,7 +146,7 @@ namespace GmicSharp
 
             VerifyNotDisposed();
 
-            if (gmicRunner.IsRunning)
+            if (gmicRunner.IsBusy)
             {
                 ExceptionUtil.ThrowInvalidOperationException("Cannot add an input image when G'MIC is running.");
             }
@@ -206,15 +186,6 @@ namespace GmicSharp
                     updateProgressTimer.Dispose();
                     updateProgressTimer = null;
                 }
-
-                if (outputGmicBitmaps != null)
-                {
-                    for (int i = 0; i < outputGmicBitmaps.Count; i++)
-                    {
-                        outputGmicBitmaps[i].Dispose();
-                    }
-                    outputGmicBitmaps = null;
-                }
             }
         }
 
@@ -229,26 +200,7 @@ namespace GmicSharp
         /// This G'MIC instance is already running.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
-        /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
-        public void RunGmic(string command)
-        {
-            RunGmic(command, CancellationToken.None);
-        }
-
-        /// <summary>
-        /// Executes G'MIC with the specified command.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="command"/> is null.</exception>
-        /// <exception cref="ArgumentException"><paramref name="command"/> is a empty or contains only white space.</exception>
-        /// <exception cref="GmicException">An error occurred when running G'MIC.</exception>
-        /// <exception cref="InvalidOperationException">
-        /// This G'MIC instance is already running.
-        /// </exception>
-        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
-        /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
-        public void RunGmic(string command, CancellationToken cancellationToken)
+        public void RunGmicAsync(string command)
         {
             if (command is null)
             {
@@ -262,44 +214,42 @@ namespace GmicSharp
 
             VerifyNotDisposed();
 
-            if (gmicRunner.IsRunning)
+            if (gmicRunner.IsBusy)
             {
                 ExceptionUtil.ThrowInvalidOperationException("This G'MIC instance is already running.");
             }
 
-            bool hasProgressEvent = GmicProgress != null;
-            this.cancellationToken = cancellationToken;
+            bool hasProgressEvent = RunGmicProgressChanged != null;
 
-            if (hasProgressEvent || cancellationToken.CanBeCanceled)
+            if (hasProgressEvent)
             {
                 StartUpdateProgressTimer();
             }
 
-            gmicRunner.Start(command,
-                             CustomResourcePath,
-                             hostName,
-                             gmicImages,
-                             cancellationToken,
-                             hasProgressEvent);
+            gmicRunner.StartAsync(command,
+                                  CustomResourcePath,
+                                  hostName,
+                                  gmicImages,
+                                  hasProgressEvent);
         }
 
-        private void GmicRenderingCompleted(object sender, GmicCompletedEventArgs e)
+        /// <summary>
+        /// Cancels the asynchronous G'MIC processing.
+        /// </summary>
+        public void RunGmicAsyncCancel()
+        {
+            gmicRunner.SignalCancelRequest();
+        }
+
+        private void GmicRunnerCompleted(object sender, GmicRunnerCompletedEventArgs e)
         {
             StopUpdateProgressTimer();
 
+            OutputImageCollection<TGmicBitmap> outputGmicBitmaps = null;
             try
             {
                 if (e.Error == null && !e.Canceled)
                 {
-                    if (outputGmicBitmaps != null)
-                    {
-                        for (int i = 0; i < outputGmicBitmaps.Count; i++)
-                        {
-                            outputGmicBitmaps[i].Dispose();
-                        }
-                        outputGmicBitmaps = null;
-                    }
-
                     outputGmicBitmaps = CreateOutputBitmaps();
 
                     for (int i = 0; i < outputGmicBitmaps.Count; i++)
@@ -311,19 +261,19 @@ namespace GmicSharp
             }
             catch (Exception ex)
             {
-                OnGmicDone(new GmicCompletedEventArgs(ex, false));
+                OnGmicDone(new RunGmicCompletedEventArgs<TGmicBitmap>(null, ex, false));
                 return;
             }
 
-            OnGmicDone(e);
+            OnGmicDone(new RunGmicCompletedEventArgs<TGmicBitmap>(outputGmicBitmaps, e.Error, e.Canceled));
         }
 
-        private void OnGmicDone(GmicCompletedEventArgs e)
+        private void OnGmicDone(RunGmicCompletedEventArgs<TGmicBitmap> e)
         {
-            GmicDone?.Invoke(this, e);
+            RunGmicCompleted?.Invoke(this, e);
         }
 
-        private IReadOnlyList<TGmicBitmap> CreateOutputBitmaps()
+        private OutputImageCollection<TGmicBitmap> CreateOutputBitmaps()
         {
             List<TGmicBitmap> gmicBitmaps = new List<TGmicBitmap>((int)gmicImages.Count);
 
@@ -372,7 +322,7 @@ namespace GmicSharp
                 gmicBitmaps.Add(outputImageFactory.Create(width, height, gmicPixelFormat));
             }
 
-            return gmicBitmaps;
+            return new OutputImageCollection<TGmicBitmap>(gmicBitmaps);
         }
 
 
@@ -403,12 +353,7 @@ namespace GmicSharp
                     progress = 100f;
                 }
 
-                GmicProgress?.Invoke(this, new GmicProgressEventArgs((int)progress));
-            }
-
-            if (cancellationToken.IsCancellationRequested)
-            {
-                gmicRunner.SignalCancelRequest();
+                RunGmicProgressChanged?.Invoke(this, new RunGmicProgressChangedEventArgs((int)progress));
             }
 
             progressUpdating = 0;

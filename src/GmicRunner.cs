@@ -20,9 +20,6 @@ namespace GmicSharp
     internal sealed class GmicRunner
     {
         private AsyncOperation asyncOperation;
-#pragma warning disable IDE0032 // Use auto property
-        private bool isRunning;
-#pragma warning restore IDE0032 // Use auto property
         private readonly SendOrPostCallback workerCompleted;
 
         private float progress;
@@ -34,9 +31,9 @@ namespace GmicSharp
             workerCompleted = new SendOrPostCallback(GmicWorkerCompleted);
         }
 
-        public event EventHandler<GmicCompletedEventArgs> GmicCompleted;
+        public event EventHandler<GmicRunnerCompletedEventArgs> Completed;
 
-        public bool IsRunning => isRunning;
+        public bool IsBusy { get; private set; }
 
         public float GetProgress()
         {
@@ -55,23 +52,22 @@ namespace GmicSharp
         /// <param name="customResourcePath">The custom resource path.</param>
         /// <param name="hostName">The host application name.</param>
         /// <param name="imageList">The image list.</param>
-        /// <param name="token">The cancellation token.</param>
         /// <param name="hasProgressEvent"><c>true</c> if the caller whats progress reports; otherwise, <c>false</c>.</param>
         /// <exception cref="InvalidOperationException">This G'MIC instance is already running.</exception>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
-        public void Start(string command,
-                          string customResourcePath,
-                          string hostName,
-                          GmicImageList imageList,
-                          CancellationToken token,
-                          bool hasProgressEvent)
+        public void StartAsync(string command,
+                               string customResourcePath,
+                               string hostName,
+                               GmicImageList imageList,
+                               bool hasProgressEvent)
         {
-            if (isRunning)
+            if (IsBusy)
             {
                 ExceptionUtil.ThrowInvalidOperationException("This G'MIC instance is already running.");
             }
 
-            token.ThrowIfCancellationRequested();
+            progress = -1;
+            shouldAbort = 0;
 
             asyncOperation = AsyncOperationManager.CreateOperation(null);
 
@@ -79,11 +75,10 @@ namespace GmicSharp
                                                      customResourcePath,
                                                      hostName,
                                                      imageList,
-                                                     token,
                                                      hasProgressEvent);
-            Task task = Task.Run(() => GmicWorker(args), token);
+            Task task = Task.Run(() => GmicWorker(args));
 
-            isRunning = TaskIsRunning(task);
+            IsBusy = TaskIsRunning(task);
         }
 
         private static bool TaskIsRunning(Task task)
@@ -108,66 +103,40 @@ namespace GmicSharp
             Exception error = null;
             bool canceled = false;
 
-            if (args.Token.IsCancellationRequested)
-            {
-                canceled = true;
-            }
-            else
-            {
-                progress = -1;
-                shouldAbort = 0;
 
-                GmicOptions options = new GmicOptions(args.Command,
-                                                      args.CustomResourcePath,
-                                                      args.HostName);
-
-                try
+            GmicOptions options = new GmicOptions(args.Command,
+                                                  args.CustomResourcePath,
+                                                  args.HostName);
+            try
+            {
+                if (args.HasProgressEvent)
                 {
-                    if (args.HasProgressEvent)
+                    fixed (float* pProgress = &progress)
+                    fixed (byte* pShouldAbort = &shouldAbort)
                     {
-                        if (args.Token.CanBeCanceled)
-                        {
-                            fixed (float* pProgress = &progress)
-                            fixed (byte* pShouldAbort = &shouldAbort)
-                            {
-                                options.progress = pProgress;
-                                options.abort = pShouldAbort;
+                        options.progress = pProgress;
+                        options.abort = pShouldAbort;
 
-                                GmicNative.RunGmic(args.ImageList.SafeImageListHandle, options);
-                            }
-
-                            canceled = shouldAbort != 0;
-                        }
-                        else
-                        {
-                            fixed (float* pProgress = &progress)
-                            {
-                                options.progress = pProgress;
-
-                                GmicNative.RunGmic(args.ImageList.SafeImageListHandle, options);
-                            }
-                        }
-                    }
-                    else if (args.Token.CanBeCanceled)
-                    {
-                        fixed (byte* pShouldAbort = &shouldAbort)
-                        {
-                            options.abort = pShouldAbort;
-
-                            GmicNative.RunGmic(args.ImageList.SafeImageListHandle, options);
-                        }
-
-                        canceled = shouldAbort != 0;
-                    }
-                    else
-                    {
                         GmicNative.RunGmic(args.ImageList.SafeImageListHandle, options);
                     }
+
+                    canceled = shouldAbort != 0;
                 }
-                catch (Exception ex)
+                else
                 {
-                    error = ex;
+                    fixed (byte* pShouldAbort = &shouldAbort)
+                    {
+                        options.abort = pShouldAbort;
+
+                        GmicNative.RunGmic(args.ImageList.SafeImageListHandle, options);
+                    }
+
+                    canceled = shouldAbort != 0;
                 }
+            }
+            catch (Exception ex)
+            {
+                error = ex;
             }
 
             asyncOperation.PostOperationCompleted(workerCompleted, new WorkerCompletedArgs(error, canceled));
@@ -175,11 +144,11 @@ namespace GmicSharp
 
         private void GmicWorkerCompleted(object state)
         {
-            isRunning = false;
+            IsBusy = false;
 
             WorkerCompletedArgs args = (WorkerCompletedArgs)state;
 
-            GmicCompleted?.Invoke(this, new GmicCompletedEventArgs(args.Error, args.Canceled));
+            Completed?.Invoke(this, new GmicRunnerCompletedEventArgs(args.Error, args.Canceled));
         }
 
         private sealed class GmicWorkerArgs
@@ -188,14 +157,12 @@ namespace GmicSharp
                                   string customResourcePath,
                                   string hostName,
                                   GmicImageList imageList,
-                                  CancellationToken token,
                                   bool hasProgressEvent)
             {
                 Command = command;
                 CustomResourcePath = customResourcePath;
                 HostName = hostName;
                 ImageList = imageList;
-                Token = token;
                 HasProgressEvent = hasProgressEvent;
             }
 
@@ -206,8 +173,6 @@ namespace GmicSharp
             public string HostName { get; }
 
             public GmicImageList ImageList { get;  }
-
-            public CancellationToken Token { get; }
 
             public bool HasProgressEvent { get; }
         }
