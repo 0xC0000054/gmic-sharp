@@ -157,10 +157,16 @@ namespace GmicSharp
         /// <summary>
         /// Clears the input images that have been added this G'MIC instance.
         /// </summary>
+        /// <exception cref="InvalidOperationException">Cannot clear the input images when G'MIC is running.</exception>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public void ClearInputImages()
         {
             VerifyNotDisposed();
+
+            if (gmicRunner.IsBusy)
+            {
+                ExceptionUtil.ThrowInvalidOperationException("Cannot clear the input images when G'MIC is running.");
+            }
 
             gmicImages.Clear();
         }
