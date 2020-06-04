@@ -11,24 +11,17 @@
 
 using GmicSharp.Interop;
 using System;
-using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace GmicSharp
 {
     internal sealed class GmicRunner
     {
-        private AsyncOperation asyncOperation;
-        private readonly SendOrPostCallback workerCompleted;
-
         private float progress;
         private byte shouldAbort;
 
         public GmicRunner()
         {
-            asyncOperation = null;
-            workerCompleted = new SendOrPostCallback(GmicWorkerCompleted);
         }
 
         public event EventHandler<GmicRunnerCompletedEventArgs> Completed;
@@ -68,8 +61,6 @@ namespace GmicSharp
 
             progress = -1;
             shouldAbort = 0;
-
-            asyncOperation = AsyncOperationManager.CreateOperation(null);
 
             GmicWorkerArgs args = new GmicWorkerArgs(command,
                                                      customResourcePath,
@@ -139,16 +130,14 @@ namespace GmicSharp
                 error = ex;
             }
 
-            asyncOperation.PostOperationCompleted(workerCompleted, new WorkerCompletedArgs(error, canceled));
+            GmicWorkerCompleted(error, canceled);
         }
 
-        private void GmicWorkerCompleted(object state)
+        private void GmicWorkerCompleted(Exception error, bool canceled)
         {
             IsBusy = false;
 
-            WorkerCompletedArgs args = (WorkerCompletedArgs)state;
-
-            Completed?.Invoke(this, new GmicRunnerCompletedEventArgs(args.Error, args.Canceled));
+            Completed?.Invoke(this, new GmicRunnerCompletedEventArgs(error, canceled));
         }
 
         private sealed class GmicWorkerArgs
@@ -175,19 +164,6 @@ namespace GmicSharp
             public GmicImageList ImageList { get;  }
 
             public bool HasProgressEvent { get; }
-        }
-
-        private sealed class WorkerCompletedArgs
-        {
-            public WorkerCompletedArgs(Exception error, bool canceled)
-            {
-                Error = error;
-                Canceled = canceled;
-            }
-
-            public Exception Error { get; }
-
-            public bool Canceled { get; }
         }
     }
 }
