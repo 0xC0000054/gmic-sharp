@@ -330,6 +330,10 @@ namespace GmicSharp
             return new OutputImageCollection<TGmicBitmap>(gmicBitmaps);
         }
 
+        private void OnRunGmicProgressChanged(int progress)
+        {
+            RunGmicProgressChanged?.Invoke(this, new RunGmicProgressChangedEventArgs(progress));
+        }
 
         private void OnUpdateProgress(object state)
         {
@@ -358,7 +362,7 @@ namespace GmicSharp
                     progress = 100f;
                 }
 
-                RunGmicProgressChanged?.Invoke(this, new RunGmicProgressChangedEventArgs((int)progress));
+                OnRunGmicProgressChanged((int)progress);
             }
 
             progressUpdating = 0;
