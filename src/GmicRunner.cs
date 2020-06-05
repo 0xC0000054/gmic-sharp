@@ -17,14 +17,25 @@ namespace GmicSharp
 {
     internal sealed class GmicRunner
     {
+        private readonly Action<Exception, bool> workerCompleted;
+
         private float progress;
         private byte shouldAbort;
 
-        public GmicRunner()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GmicRunner"/> class.
+        /// </summary>
+        /// <param name="workerCompleted">The worker completed callback.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="workerCompleted"/> is null.</exception>
+        public GmicRunner(Action<Exception, bool> workerCompleted)
         {
-        }
+            if (workerCompleted is null)
+            {
+                ExceptionUtil.ThrowArgumentNullException(nameof(workerCompleted));
+            }
 
-        public event EventHandler<GmicRunnerCompletedEventArgs> Completed;
+            this.workerCompleted = workerCompleted;
+        }
 
         public bool IsBusy { get; private set; }
 
@@ -137,7 +148,7 @@ namespace GmicSharp
         {
             IsBusy = false;
 
-            Completed?.Invoke(this, new GmicRunnerCompletedEventArgs(error, canceled));
+            workerCompleted.Invoke(error, canceled);
         }
 
         private sealed class GmicWorkerArgs

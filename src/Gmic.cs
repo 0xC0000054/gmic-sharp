@@ -54,8 +54,7 @@ namespace GmicSharp
 
             this.outputImageFactory = outputImageFactory;
             gmicImages = new GmicImageList();
-            gmicRunner = new GmicRunner();
-            gmicRunner.Completed += new EventHandler<GmicRunnerCompletedEventArgs>(GmicRunnerCompleted);
+            gmicRunner = new GmicRunner(GmicRunnerCompleted);
         }
 
         /// <summary>
@@ -247,14 +246,14 @@ namespace GmicSharp
             gmicRunner.SignalCancelRequest();
         }
 
-        private void GmicRunnerCompleted(object sender, GmicRunnerCompletedEventArgs e)
+        private void GmicRunnerCompleted(Exception error, bool canceled)
         {
             StopUpdateProgressTimer();
 
             OutputImageCollection<TGmicBitmap> outputGmicBitmaps = null;
             try
             {
-                if (e.Error == null && !e.Canceled)
+                if (error == null && !canceled)
                 {
                     outputGmicBitmaps = CreateOutputBitmaps();
 
@@ -271,7 +270,7 @@ namespace GmicSharp
                 return;
             }
 
-            OnGmicDone(new RunGmicCompletedEventArgs<TGmicBitmap>(outputGmicBitmaps, e.Error, e.Canceled));
+            OnGmicDone(new RunGmicCompletedEventArgs<TGmicBitmap>(outputGmicBitmaps, error, canceled));
         }
 
         private void OnGmicDone(RunGmicCompletedEventArgs<TGmicBitmap> e)
