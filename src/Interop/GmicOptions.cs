@@ -33,13 +33,13 @@ namespace GmicSharp.Interop
             abort = null;
         }
 
-        [MarshalAs(UnmanagedType.LPStr)]
+        [MarshalAs(UnmanagedType.LPUTF8Str)]
         public string commandLine;
 
         [MarshalAs(UnmanagedType.LPUTF8Str)]
         public string customResourcePath;
 
-        [MarshalAs(UnmanagedType.LPStr)]
+        [MarshalAs(UnmanagedType.LPUTF8Str)]
         public string hostName;
 
         public unsafe float* progress;

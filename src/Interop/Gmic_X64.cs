@@ -43,7 +43,7 @@ namespace GmicSharp.Interop
                                                            uint stride,
                                                            IntPtr scan0,
                                                            NativeImageFormat format,
-                                                           string name);
+                                                           [MarshalAs(UnmanagedType.LPUTF8Str)] string name);
 
         [DllImport(DllName, CallingConvention = DllCallConv)]
         internal static extern GmicStatus GmicImageListCopyToOutput(SafeGmicImageList list,
