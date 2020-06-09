@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace GmicSharp
 {
@@ -32,7 +33,7 @@ namespace GmicSharp
 #pragma warning restore IDE0032 // Use auto property
 
         private readonly IGmicOutputImageFactory<TGmicBitmap> outputImageFactory;
-        private readonly GmicRunner gmicRunner;
+        private readonly GmicRunner<TGmicBitmap> gmicRunner;
 
         /// <summary>
         /// The default host name that gmic-sharp-native uses.
@@ -54,7 +55,7 @@ namespace GmicSharp
 
             this.outputImageFactory = outputImageFactory;
             gmicImages = new GmicImageList();
-            gmicRunner = new GmicRunner(GmicRunnerCompleted);
+            gmicRunner = new GmicRunner<TGmicBitmap>(GmicRunnerCompleted);
         }
 
         /// <summary>
@@ -228,7 +229,7 @@ namespace GmicSharp
 
             if (hasProgressEvent)
             {
-                StartUpdateProgressTimer();
+                StartUpdateProgressTimer(new UpdateProgressState());
             }
 
             gmicRunner.StartAsync(command,
@@ -246,7 +247,96 @@ namespace GmicSharp
             gmicRunner.SignalCancelRequest();
         }
 
-        private void GmicRunnerCompleted(Exception error, bool canceled)
+        /// <summary>
+        /// Executes G'MIC with the specified command.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <returns>A <see cref="Task{TResult}"/> that represents the work queued to execute in the thread pool.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="command" /> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="command" /> is a empty or contains only white space.</exception>
+        /// <exception cref="InvalidOperationException">This G'MIC instance is already running.</exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+        public Task<OutputImageCollection<TGmicBitmap>> RunGmicTaskAsync(string command)
+        {
+            return RunGmicTaskAsync(command, CancellationToken.None, null);
+        }
+
+        /// <summary>
+        /// Executes G'MIC with the specified command.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A <see cref="Task{TResult}"/> that represents the work queued to execute in the thread pool.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="command" /> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="command" /> is a empty or contains only white space.</exception>
+        /// <exception cref="InvalidOperationException">This G'MIC instance is already running.</exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+        public Task<OutputImageCollection<TGmicBitmap>> RunGmicTaskAsync(string command, CancellationToken cancellationToken)
+        {
+            return RunGmicTaskAsync(command, cancellationToken, null);
+        }
+
+        /// <summary>
+        /// Executes G'MIC with the specified command.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="progress">The progress callback.</param>
+        /// <returns>A <see cref="Task{TResult}"/> that represents the work queued to execute in the thread pool.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="command" /> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="command" /> is a empty or contains only white space.</exception>
+        /// <exception cref="InvalidOperationException">This G'MIC instance is already running.</exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+        public Task<OutputImageCollection<TGmicBitmap>> RunGmicTaskAsync(string command, CancellationToken cancellationToken, IProgress<int> progress)
+        {
+            if (command is null)
+            {
+                ExceptionUtil.ThrowArgumentNullException(nameof(command));
+            }
+
+            if (command.IsEmptyOrWhiteSpace())
+            {
+                ExceptionUtil.ThrowArgumentException("The G'MIC command is empty or all white space characters.");
+            }
+
+            VerifyNotDisposed();
+
+            if (gmicRunner.IsBusy)
+            {
+                ExceptionUtil.ThrowInvalidOperationException("This G'MIC instance is already running.");
+            }
+
+            bool hasProgressEvent = progress != null;
+
+            if (hasProgressEvent || cancellationToken.CanBeCanceled)
+            {
+                StartUpdateProgressTimer(new UpdateProgressState(progress, cancellationToken));
+            }
+
+            TaskCompletionSource<OutputImageCollection<TGmicBitmap>> completionSource = new TaskCompletionSource<OutputImageCollection<TGmicBitmap>>();
+
+            try
+            {
+                gmicRunner.StartAsync(command,
+                                      CustomResourcePath,
+                                      hostName,
+                                      gmicImages,
+                                      hasProgressEvent,
+                                      new GmicRunnerTaskState<TGmicBitmap>(completionSource, cancellationToken));
+            }
+            catch (OperationCanceledException)
+            {
+                completionSource.TrySetCanceled();
+            }
+            catch (Exception ex)
+            {
+                completionSource.TrySetException(ex);
+            }
+
+            return completionSource.Task;
+        }
+
+        private void GmicRunnerCompleted(Exception error, bool canceled, TaskCompletionSource<OutputImageCollection<TGmicBitmap>> task)
         {
             StopUpdateProgressTimer();
 
@@ -266,11 +356,36 @@ namespace GmicSharp
             }
             catch (Exception ex)
             {
-                OnGmicDone(new RunGmicCompletedEventArgs<TGmicBitmap>(null, ex, false));
+                if (task != null)
+                {
+                    task.TrySetException(ex);
+                }
+                else
+                {
+                    OnGmicDone(new RunGmicCompletedEventArgs<TGmicBitmap>(null, ex, false));
+                }
                 return;
             }
 
-            OnGmicDone(new RunGmicCompletedEventArgs<TGmicBitmap>(outputGmicBitmaps, error, canceled));
+            if (task != null)
+            {
+                if (error != null)
+                {
+                    task.TrySetException(error);
+                }
+                else if (canceled)
+                {
+                    task.TrySetCanceled();
+                }
+                else
+                {
+                    task.TrySetResult(outputGmicBitmaps);
+                }
+            }
+            else
+            {
+                OnGmicDone(new RunGmicCompletedEventArgs<TGmicBitmap>(outputGmicBitmaps, error, canceled));
+            }
         }
 
         private void OnGmicDone(RunGmicCompletedEventArgs<TGmicBitmap> e)
@@ -349,30 +464,50 @@ namespace GmicSharp
                 return;
             }
 
-            float progress = gmicRunner.GetProgress();
+            UpdateProgressState updateProgressState = (UpdateProgressState)state;
 
-            if (progress > -1f)
+            if (updateProgressState.ReportGmicProgress)
             {
-                if (progress < 0f)
-                {
-                    progress = 0f;
-                }
-                else if (progress > 100f)
-                {
-                    progress = 100f;
-                }
+                float progress = gmicRunner.GetProgress();
 
-                OnRunGmicProgressChanged((int)progress);
+                if (progress > -1f)
+                {
+                    if (progress < 0f)
+                    {
+                        progress = 0f;
+                    }
+                    else if (progress > 100f)
+                    {
+                        progress = 100f;
+                    }
+
+                    if (updateProgressState.TaskProgress != null)
+                    {
+                        updateProgressState.TaskProgress.Report((int)progress);
+                    }
+                    else
+                    {
+                        OnRunGmicProgressChanged((int)progress);
+                    }
+                }
+            }
+
+            if (updateProgressState.CheckForTaskCancellation)
+            {
+                if (updateProgressState.CancellationToken.IsCancellationRequested)
+                {
+                    gmicRunner.SignalCancelRequest();
+                }
             }
 
             progressUpdating = 0;
         }
 
-        private void StartUpdateProgressTimer()
+        private void StartUpdateProgressTimer(UpdateProgressState updateProgressState)
         {
             if (updateProgressTimer == null)
             {
-                updateProgressTimerCookie = new object();
+                updateProgressTimerCookie = updateProgressState;
                 updateProgressTimer = new Timer(OnUpdateProgress, updateProgressTimerCookie, 1000, 250);
             }
         }
@@ -393,6 +528,33 @@ namespace GmicSharp
             {
                 ExceptionUtil.ThrowObjectDisposedException(nameof(Gmic<TGmicBitmap>));
             }
+        }
+
+        private sealed class UpdateProgressState
+        {
+            public UpdateProgressState()
+            {
+                ReportGmicProgress = true;
+                TaskProgress = null;
+                CancellationToken = CancellationToken.None;
+                CheckForTaskCancellation = false;
+            }
+
+            public UpdateProgressState(IProgress<int> taskProgress, CancellationToken cancellationToken)
+            {
+                ReportGmicProgress = taskProgress != null;
+                TaskProgress = taskProgress;
+                CancellationToken = cancellationToken;
+                CheckForTaskCancellation = cancellationToken.CanBeCanceled;
+            }
+
+            public CancellationToken CancellationToken { get; }
+
+            public bool CheckForTaskCancellation { get;  }
+
+            public bool ReportGmicProgress { get; }
+
+            public IProgress<int> TaskProgress { get; }
         }
     }
 }

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
   * Support for changing the host application name seen by G'MIC scripts through the `HostName` property in `Gmic<TGmicBitmap>`.
+  * `RunGmicTaskAsync` methods for [Task-based Asynchronous Pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap) support.
 
 ### Changed
 
