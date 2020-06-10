@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * The `CustomResourcePath` property now supports paths non-ASCII characters.
  * Throw an exception if `AddInputImage` is called while G'MIC is running.
  * Throw an exception if `ClearInputImages` is called while G'MIC is running.
- * Updated `Gmic<TGmicBitmap>` to conform to the [Event-based Asynchronous Pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/event-based-asynchronous-pattern-overview).
+ * Updated `Gmic<TGmicBitmap>` to conform to the [Event-based Asynchronous Pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/event-based-asynchronous-pattern-overview) **(breaking change)**.
  * `RunGmic(string)` is now a synchronous call, use `RunGmicAsync` or `RunGmicTaskAsync` for asynchronous calls **(breaking change)**.
 
 ### Removed
