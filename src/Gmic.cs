@@ -206,6 +206,45 @@ namespace GmicSharp
         /// This G'MIC instance is already running.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+        public OutputImageCollection<TGmicBitmap> RunGmic(string command)
+        {
+            Task<OutputImageCollection<TGmicBitmap>> task = RunGmicTaskAsync(command);
+
+            // Using WaitAny allows any exception that occurred
+            // during the task execution to be examined.
+            Task.WaitAny(task);
+
+            if (task.IsFaulted)
+            {
+                Exception exception = task.Exception.GetBaseException();
+
+                if (exception is GmicException)
+                {
+                    throw exception;
+                }
+                else
+                {
+                    throw new GmicException(exception.Message, exception);
+                }
+            }
+            else
+            {
+                return task.Result;
+            }
+        }
+
+        /// <summary>
+        /// Executes G'MIC with the specified command.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <returns>An <see cref="OutputImageCollection{TGmicBitmap}"/> containing the processed images.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="command"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="command"/> is a empty or contains only white space.</exception>
+        /// <exception cref="GmicException">An error occurred when running G'MIC.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// This G'MIC instance is already running.
+        /// </exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public void RunGmicAsync(string command)
         {
             if (command is null)
