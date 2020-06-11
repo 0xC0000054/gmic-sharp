@@ -401,7 +401,7 @@ namespace GmicSharp
                 }
                 else
                 {
-                    OnGmicDone(new RunGmicCompletedEventArgs<TGmicBitmap>(null, ex, false));
+                    OnRunGmicCompleted(new RunGmicCompletedEventArgs<TGmicBitmap>(null, ex, false));
                 }
                 return;
             }
@@ -423,11 +423,11 @@ namespace GmicSharp
             }
             else
             {
-                OnGmicDone(new RunGmicCompletedEventArgs<TGmicBitmap>(outputGmicBitmaps, error, canceled));
+                OnRunGmicCompleted(new RunGmicCompletedEventArgs<TGmicBitmap>(outputGmicBitmaps, error, canceled));
             }
         }
 
-        private void OnGmicDone(RunGmicCompletedEventArgs<TGmicBitmap> e)
+        private void OnRunGmicCompleted(RunGmicCompletedEventArgs<TGmicBitmap> e)
         {
             RunGmicCompleted?.Invoke(this, e);
         }
