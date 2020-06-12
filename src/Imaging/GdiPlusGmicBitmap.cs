@@ -78,7 +78,7 @@ namespace GmicSharp
         }
 
         /// <summary>
-        /// Gets the GSI+ Bitmap.
+        /// Gets the GDI+ Bitmap.
         /// </summary>
         /// <value>
         /// The image.
