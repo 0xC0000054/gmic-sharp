@@ -587,11 +587,9 @@ namespace GmicSharp
         private void StartUpdateProgressTimer(UpdateProgressState updateProgressState)
         {
             lastProgressValue = -1;
-            if (updateProgressTimer == null)
-            {
-                updateProgressTimerCookie = updateProgressState;
-                updateProgressTimer = new Timer(OnUpdateProgress, updateProgressTimerCookie, 1000, 250);
-            }
+            updateProgressTimerCookie = updateProgressState;
+            updateProgressTimer?.Dispose();
+            updateProgressTimer = new Timer(OnUpdateProgress, updateProgressTimerCookie, 1000, 250);
         }
 
         private void StopUpdateProgressTimer()
