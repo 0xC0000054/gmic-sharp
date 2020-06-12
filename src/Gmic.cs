@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,9 +32,12 @@ namespace GmicSharp
 #pragma warning disable IDE0032 // Use auto property
         private string hostName;
 #pragma warning restore IDE0032 // Use auto property
+        private AsyncOperation asyncOp;
 
         private readonly IGmicOutputImageFactory<TGmicBitmap> outputImageFactory;
         private readonly GmicRunner<TGmicBitmap> gmicRunner;
+        private readonly SendOrPostCallback completedCallback;
+        private readonly SendOrPostCallback progressCallback;
 
         /// <summary>
         /// The default host name that gmic-sharp-native uses.
@@ -56,6 +60,8 @@ namespace GmicSharp
             this.outputImageFactory = outputImageFactory;
             gmicImages = new GmicImageList();
             gmicRunner = new GmicRunner<TGmicBitmap>(GmicRunnerCompleted);
+            completedCallback = new SendOrPostCallback(RunGmicCompletedCallback);
+            progressCallback = new SendOrPostCallback(RunGmicProgressCallback);
         }
 
         /// <summary>
@@ -271,6 +277,8 @@ namespace GmicSharp
                 StartUpdateProgressTimer(new UpdateProgressState());
             }
 
+            asyncOp = AsyncOperationManager.CreateOperation(null);
+
             gmicRunner.StartAsync(command,
                                   CustomResourcePath,
                                   hostName,
@@ -401,7 +409,7 @@ namespace GmicSharp
                 }
                 else
                 {
-                    OnRunGmicCompleted(new RunGmicCompletedEventArgs<TGmicBitmap>(null, ex, false));
+                    RaiseRunGmicCompleted(null, ex, false);
                 }
                 return;
             }
@@ -423,8 +431,19 @@ namespace GmicSharp
             }
             else
             {
-                OnRunGmicCompleted(new RunGmicCompletedEventArgs<TGmicBitmap>(outputGmicBitmaps, error, canceled));
+                RaiseRunGmicCompleted(outputGmicBitmaps, error, canceled);
             }
+        }
+
+        private void RaiseRunGmicCompleted(OutputImageCollection<TGmicBitmap> images, Exception error, bool canceled)
+        {
+            asyncOp.PostOperationCompleted(completedCallback, new RunGmicCompletedEventArgs<TGmicBitmap>(images, error, canceled));
+            asyncOp = null;
+        }
+
+        private void RunGmicCompletedCallback(object args)
+        {
+            OnRunGmicCompleted((RunGmicCompletedEventArgs<TGmicBitmap>)args);
         }
 
         private void OnRunGmicCompleted(RunGmicCompletedEventArgs<TGmicBitmap> e)
@@ -484,9 +503,19 @@ namespace GmicSharp
             return new OutputImageCollection<TGmicBitmap>(gmicBitmaps);
         }
 
-        private void OnRunGmicProgressChanged(int progress)
+        private void RaiseRunGmicProgressChanged(int progress)
         {
-            RunGmicProgressChanged?.Invoke(this, new RunGmicProgressChangedEventArgs(progress));
+            asyncOp.Post(progressCallback, new RunGmicProgressChangedEventArgs(progress));
+        }
+
+        private void RunGmicProgressCallback(object args)
+        {
+            OnRunGmicProgressChanged((RunGmicProgressChangedEventArgs)args);
+        }
+
+        private void OnRunGmicProgressChanged(RunGmicProgressChangedEventArgs e)
+        {
+            RunGmicProgressChanged?.Invoke(this, e);
         }
 
         private void OnUpdateProgress(object state)
@@ -526,7 +555,7 @@ namespace GmicSharp
                     }
                     else
                     {
-                        OnRunGmicProgressChanged((int)progress);
+                        RaiseRunGmicProgressChanged((int)progress);
                     }
                 }
             }
