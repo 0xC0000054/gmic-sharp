@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * `RunGmic(string)` is now a synchronous call, use `RunGmicAsync` or `RunGmicTaskAsync` for asynchronous calls **(breaking change)**.
  * Raise the `RunGmicCompleted` and `RunGmicProgressChanged` events on the thread that called `RunGmicAsync`.
 
+### Fixed
+
+* The progress update event will only be fired when the value changes.
+
 ### Removed
 
  * The `CustomUserFilePath` property in  `Gmic<TGmicBitmap>`.

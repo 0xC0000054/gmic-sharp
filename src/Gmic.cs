@@ -29,6 +29,7 @@ namespace GmicSharp
         private bool disposed;
         private int progressUpdating;
         private object updateProgressTimerCookie;
+        private int lastProgressValue;
 #pragma warning disable IDE0032 // Use auto property
         private string hostName;
 #pragma warning restore IDE0032 // Use auto property
@@ -554,13 +555,20 @@ namespace GmicSharp
                         progress = 100f;
                     }
 
-                    if (updateProgressState.TaskProgress != null)
+                    int progressPercentage = (int)progress;
+
+                    if (progressPercentage != lastProgressValue)
                     {
-                        updateProgressState.TaskProgress.Report((int)progress);
-                    }
-                    else
-                    {
-                        RaiseRunGmicProgressChanged((int)progress);
+                        lastProgressValue = progressPercentage;
+
+                        if (updateProgressState.TaskProgress != null)
+                        {
+                            updateProgressState.TaskProgress.Report(progressPercentage);
+                        }
+                        else
+                        {
+                            RaiseRunGmicProgressChanged(progressPercentage);
+                        }
                     }
                 }
             }
@@ -578,6 +586,7 @@ namespace GmicSharp
 
         private void StartUpdateProgressTimer(UpdateProgressState updateProgressState)
         {
+            lastProgressValue = -1;
             if (updateProgressTimer == null)
             {
                 updateProgressTimerCookie = updateProgressState;
