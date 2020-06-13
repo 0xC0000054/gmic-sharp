@@ -356,9 +356,9 @@ namespace GmicSharp
 
             bool hasProgressEvent = progress != null;
 
-            if (hasProgressEvent || cancellationToken.CanBeCanceled)
+            if (hasProgressEvent)
             {
-                StartUpdateProgressTimer(new UpdateProgressState(progress, cancellationToken));
+                StartUpdateProgressTimer(new UpdateProgressState(progress));
             }
 
             TaskCompletionSource<OutputImageCollection<TGmicBitmap>> completionSource = new TaskCompletionSource<OutputImageCollection<TGmicBitmap>>();
@@ -540,44 +540,33 @@ namespace GmicSharp
 
             UpdateProgressState updateProgressState = (UpdateProgressState)state;
 
-            if (updateProgressState.ReportGmicProgress)
+            float progress = gmicRunner.GetProgress();
+
+            if (progress > -1f)
             {
-                float progress = gmicRunner.GetProgress();
-
-                if (progress > -1f)
+                if (progress < 0f)
                 {
-                    if (progress < 0f)
-                    {
-                        progress = 0f;
-                    }
-                    else if (progress > 100f)
-                    {
-                        progress = 100f;
-                    }
-
-                    int progressPercentage = (int)progress;
-
-                    if (progressPercentage != lastProgressValue)
-                    {
-                        lastProgressValue = progressPercentage;
-
-                        if (updateProgressState.TaskProgress != null)
-                        {
-                            updateProgressState.TaskProgress.Report(progressPercentage);
-                        }
-                        else
-                        {
-                            RaiseRunGmicProgressChanged(progressPercentage);
-                        }
-                    }
+                    progress = 0f;
                 }
-            }
-
-            if (updateProgressState.CheckForTaskCancellation)
-            {
-                if (updateProgressState.CancellationToken.IsCancellationRequested)
+                else if (progress > 100f)
                 {
-                    gmicRunner.SignalCancelRequest();
+                    progress = 100f;
+                }
+
+                int progressPercentage = (int)progress;
+
+                if (progressPercentage != lastProgressValue)
+                {
+                    lastProgressValue = progressPercentage;
+
+                    if (updateProgressState.TaskProgress != null)
+                    {
+                        updateProgressState.TaskProgress.Report(progressPercentage);
+                    }
+                    else
+                    {
+                        RaiseRunGmicProgressChanged(progressPercentage);
+                    }
                 }
             }
 
@@ -614,25 +603,18 @@ namespace GmicSharp
         {
             public UpdateProgressState()
             {
-                ReportGmicProgress = true;
                 TaskProgress = null;
-                CancellationToken = CancellationToken.None;
-                CheckForTaskCancellation = false;
             }
 
-            public UpdateProgressState(IProgress<int> taskProgress, CancellationToken cancellationToken)
+            public UpdateProgressState(IProgress<int> taskProgress)
             {
-                ReportGmicProgress = taskProgress != null;
+                if (taskProgress is null)
+                {
+                    ExceptionUtil.ThrowArgumentNullException(nameof(taskProgress));
+                }
+
                 TaskProgress = taskProgress;
-                CancellationToken = cancellationToken;
-                CheckForTaskCancellation = cancellationToken.CanBeCanceled;
             }
-
-            public CancellationToken CancellationToken { get; }
-
-            public bool CheckForTaskCancellation { get;  }
-
-            public bool ReportGmicProgress { get; }
 
             public IProgress<int> TaskProgress { get; }
         }

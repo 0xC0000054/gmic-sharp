@@ -100,8 +100,7 @@ namespace GmicSharp
                                                      hostName,
                                                      imageList,
                                                      hasProgressEvent,
-                                                     taskState?.CancellationToken.CanBeCanceled ?? true,
-                                                     taskState?.CompletionSource);
+                                                     taskState);
 
             Task task = Task.Run(() => GmicWorker(args), taskState?.CancellationToken ?? CancellationToken.None);
 
@@ -130,20 +129,63 @@ namespace GmicSharp
             Exception error = null;
             bool canceled = false;
 
-
-            GmicOptions options = new GmicOptions(args.Command,
-                                                  args.CustomResourcePath,
-                                                  args.HostName);
+            CancellationTokenRegistration cancellationTokenRegistration = new CancellationTokenRegistration();
             try
             {
-                if (args.HasProgressEvent)
+                if (args.Task != null)
                 {
                     if (args.CanBeCanceled)
                     {
-                        fixed (float* pProgress = &progress)
+                        if (args.CancellationToken.IsCancellationRequested)
+                        {
+                            canceled = true;
+                        }
+                        else
+                        {
+                            cancellationTokenRegistration = args.CancellationToken.Register(SignalCancelRequest);
+                        }
+                    }
+                }
+                else
+                {
+                    canceled = shouldAbort != 0;
+                }
+
+                if (!canceled)
+                {
+                    GmicOptions options = new GmicOptions(args.Command,
+                                                          args.CustomResourcePath,
+                                                          args.HostName);
+
+                    if (args.HasProgressEvent)
+                    {
+                        if (args.CanBeCanceled)
+                        {
+                            fixed (float* pProgress = &progress)
+                            fixed (byte* pShouldAbort = &shouldAbort)
+                            {
+                                options.progress = pProgress;
+                                options.abort = pShouldAbort;
+
+                                GmicNative.RunGmic(args.ImageList.SafeImageListHandle, options);
+                            }
+
+                            canceled = shouldAbort != 0;
+                        }
+                        else
+                        {
+                            fixed (float* pProgress = &progress)
+                            {
+                                options.progress = pProgress;
+
+                                GmicNative.RunGmic(args.ImageList.SafeImageListHandle, options);
+                            }
+                        }
+                    }
+                    else if (args.CanBeCanceled)
+                    {
                         fixed (byte* pShouldAbort = &shouldAbort)
                         {
-                            options.progress = pProgress;
                             options.abort = pShouldAbort;
 
                             GmicNative.RunGmic(args.ImageList.SafeImageListHandle, options);
@@ -153,33 +195,17 @@ namespace GmicSharp
                     }
                     else
                     {
-                        fixed (float* pProgress = &progress)
-                        {
-                            options.progress = pProgress;
-
-                            GmicNative.RunGmic(args.ImageList.SafeImageListHandle, options);
-                        }
-                    }
-                }
-                else if (args.CanBeCanceled)
-                {
-                    fixed (byte* pShouldAbort = &shouldAbort)
-                    {
-                        options.abort = pShouldAbort;
-
                         GmicNative.RunGmic(args.ImageList.SafeImageListHandle, options);
                     }
-
-                    canceled = shouldAbort != 0;
-                }
-                else
-                {
-                    GmicNative.RunGmic(args.ImageList.SafeImageListHandle, options);
                 }
             }
             catch (Exception ex)
             {
                 error = ex;
+            }
+            finally
+            {
+                cancellationTokenRegistration.Dispose();
             }
 
             GmicWorkerCompleted(error, canceled, args.Task);
@@ -199,16 +225,25 @@ namespace GmicSharp
                                   string hostName,
                                   GmicImageList imageList,
                                   bool hasProgressEvent,
-                                  bool canBeCanceled,
-                                  TaskCompletionSource<OutputImageCollection<TGmicBitmap>> taskState)
+                                  GmicRunnerTaskState<TGmicBitmap> taskState)
             {
                 Command = command;
                 CustomResourcePath = customResourcePath;
                 HostName = hostName;
                 ImageList = imageList;
                 HasProgressEvent = hasProgressEvent;
-                CanBeCanceled = canBeCanceled;
-                Task = taskState;
+                if (taskState != null)
+                {
+                    CanBeCanceled = taskState.CancellationToken.CanBeCanceled;
+                    CancellationToken = taskState.CancellationToken;
+                    Task = taskState.CompletionSource;
+                }
+                else
+                {
+                    CanBeCanceled = true;
+                    CancellationToken = CancellationToken.None;
+                    Task = null;
+                }
             }
 
             public string Command { get; }
@@ -217,11 +252,13 @@ namespace GmicSharp
 
             public string HostName { get; }
 
-            public GmicImageList ImageList { get;  }
+            public GmicImageList ImageList { get; }
 
             public bool HasProgressEvent { get; }
 
             public bool CanBeCanceled { get; }
+
+            public CancellationToken CancellationToken { get; }
 
             public TaskCompletionSource<OutputImageCollection<TGmicBitmap>> Task { get; }
         }
