@@ -19,14 +19,11 @@ namespace GmicSharp
     /// <seealso cref="IDisposable" />
     public abstract class GmicBitmap : IDisposable
     {
-        private bool disposed;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="GmicBitmap"/> class.
         /// </summary>
         protected GmicBitmap()
         {
-            disposed = false;
         }
 
         /// <summary>
@@ -38,7 +35,6 @@ namespace GmicSharp
         {
             Width = width;
             Height = height;
-            disposed = false;
         }
 
         /// <summary>
@@ -88,14 +84,6 @@ namespace GmicSharp
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                }
-
-                disposed = true;
-            }
         }
     }
 }
