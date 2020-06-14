@@ -62,7 +62,14 @@ namespace GmicSharp
         /// <value>
         /// The safe image list handle.
         /// </value>
-        public SafeGmicImageList SafeImageListHandle => nativeImageList;
+        public SafeGmicImageList SafeImageListHandle
+        {
+            get
+            {
+                VerifyNotDisposed();
+                return nativeImageList;
+            }
+        }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
