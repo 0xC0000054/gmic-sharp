@@ -46,13 +46,12 @@ namespace GmicSharp
         /// <value>
         /// The number of images in the list.
         /// </value>
-        /// <exception cref="InvalidOperationException">The native image list handle is invalid.</exception>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public uint Count
         {
             get
             {
-                EnsureNativeImageListIsValid();
+                VerifyNotDisposed();
                 return GmicNative.GmicImageListGetCount(nativeImageList);
             }
         }
@@ -83,7 +82,6 @@ namespace GmicSharp
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
         /// <param name="name">The name.</param>
-        /// <exception cref="InvalidOperationException">The native image list handle is invalid.</exception>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         /// <exception cref="OutOfMemoryException">Insufficient memory to add the image.</exception>
         public void Add(GmicBitmap bitmap, string name)
@@ -93,7 +91,7 @@ namespace GmicSharp
                 ExceptionUtil.ThrowArgumentNullException(nameof(bitmap));
             }
 
-            EnsureNativeImageListIsValid();
+            VerifyNotDisposed();
 
             uint width = (uint)bitmap.Width;
             uint height = (uint)bitmap.Height;
@@ -118,11 +116,10 @@ namespace GmicSharp
         /// <summary>
         /// Clears the image list.
         /// </summary>
-        /// <exception cref="InvalidOperationException">The native image list handle is invalid.</exception>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public void Clear()
         {
-            EnsureNativeImageListIsValid();
+            VerifyNotDisposed();
 
             GmicNative.GmicImageListClear(nativeImageList);
         }
@@ -133,11 +130,10 @@ namespace GmicSharp
         /// <param name="index">The index.</param>
         /// <param name="info">The information.</param>
         /// <exception cref="GmicException">The image list index is invalid.</exception>
-        /// <exception cref="InvalidOperationException">The native image list handle is invalid.</exception>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public void GetImageInfo(uint index, out GmicImageListItemInfo info)
         {
-            EnsureNativeImageListIsValid();
+            VerifyNotDisposed();
 
             GmicNative.GmicImageListGetImageInfo(nativeImageList, index, out info);
         }
@@ -148,7 +144,6 @@ namespace GmicSharp
         /// <param name="index">The index.</param>
         /// <param name="bitmap">The bitmap.</param>
         /// <exception cref="GmicException">The image list index is invalid.</exception>
-        /// <exception cref="InvalidOperationException">The native image list handle is invalid.</exception>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public void CopyToOutput(uint index, GmicBitmap bitmap)
         {
@@ -157,7 +152,7 @@ namespace GmicSharp
                 ExceptionUtil.ThrowArgumentNullException(nameof(bitmap));
             }
 
-            EnsureNativeImageListIsValid();
+            VerifyNotDisposed();
 
             uint width = (uint)bitmap.Width;
             uint height = (uint)bitmap.Height;
@@ -180,20 +175,14 @@ namespace GmicSharp
         }
 
         /// <summary>
-        /// Ensures the native image list is valid.
+        /// Verifies that the class has not been disposed.
         /// </summary>
-        /// <exception cref="InvalidOperationException">The native image list handle is invalid.</exception>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
-        private void EnsureNativeImageListIsValid()
+        private void VerifyNotDisposed()
         {
             if (disposed)
             {
                 ExceptionUtil.ThrowObjectDisposedException(nameof(GmicImageList));
-            }
-
-            if (nativeImageList.IsClosed || nativeImageList.IsInvalid)
-            {
-                ExceptionUtil.ThrowInvalidOperationException($"The { nameof(SafeGmicImageList) } handle is closed or invalid.");
             }
         }
     }
