@@ -83,7 +83,15 @@ namespace GmicSharp
         /// <value>
         /// The image.
         /// </value>
-        public Bitmap Image => bitmap;
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+        public Bitmap Image
+        {
+            get
+            {
+                VerifyNotDisposed();
+                return bitmap;
+            }
+        }
 
         /// <summary>
         /// Gets the bitmap width.
@@ -91,7 +99,15 @@ namespace GmicSharp
         /// <value>
         /// The bitmap width.
         /// </value>
-        public override int Width => bitmap.Width;
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+        public override int Width
+        {
+            get
+            {
+                VerifyNotDisposed();
+                return bitmap.Width;
+            }
+        }
 
         /// <summary>
         /// Gets the bitmap height.
@@ -99,14 +115,25 @@ namespace GmicSharp
         /// <value>
         /// The bitmap height.
         /// </value>
-        public override int Height => bitmap.Height;
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+        public override int Height
+        {
+            get
+            {
+                VerifyNotDisposed();
+                return bitmap.Height;
+            }
+        }
 
         /// <summary>
         /// Gets the G'MIC pixel format.
         /// </summary>
         /// <returns>The G'MIC pixel format.</returns>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public override GmicPixelFormat GetGmicPixelFormat()
         {
+            VerifyNotDisposed();
+
             GmicPixelFormat gmicPixelFormat;
 
             switch (bitmap.PixelFormat)
@@ -132,12 +159,15 @@ namespace GmicSharp
         /// </summary>
         /// <returns>A <see cref="GmicBitmapLock"/> instance.</returns>
         /// <exception cref="InvalidOperationException">The bitmap is already locked.</exception>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public override GmicBitmapLock Lock()
         {
             if (bitmapData != null)
             {
                 ExceptionUtil.ThrowInvalidOperationException("The bitmap is already locked.");
             }
+
+            VerifyNotDisposed();
 
             bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
                                          ImageLockMode.ReadWrite,
@@ -149,8 +179,11 @@ namespace GmicSharp
         /// <summary>
         /// Unlocks the bitmap.
         /// </summary>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public override void Unlock()
         {
+            VerifyNotDisposed();
+
             if (bitmapData != null)
             {
                 bitmap.UnlockBits(bitmapData);
@@ -250,6 +283,18 @@ namespace GmicSharp
             return format == PixelFormat.Format24bppRgb ||
                    format == PixelFormat.Format32bppRgb ||
                    format == PixelFormat.Format32bppArgb;
+        }
+
+        /// <summary>
+        /// Verifies that the class has not been disposed.
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+        private void VerifyNotDisposed()
+        {
+            if (bitmap is null)
+            {
+                ExceptionUtil.ThrowObjectDisposedException(nameof(GdiPlusGmicBitmap));
+            }
         }
     }
 }
