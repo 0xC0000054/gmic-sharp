@@ -50,7 +50,17 @@ namespace GmicSharp
         /// </summary>
         /// <param name="outputImageFactory">The factory that creates the output images.</param>
         /// <exception cref="ArgumentNullException"><paramref name="outputImageFactory"/> is null.</exception>
-        /// <exception cref="GmicException">Unable to create the G'MIC image list.</exception>
+        /// <exception cref="GmicException">
+        /// The native library could not be found or loaded.
+        ///
+        /// or
+        ///
+        /// The GmicSharp and libGmicSharpNative versions do not match.
+        ///
+        /// or
+        ///
+        /// Unable to create the G'MIC image list.
+        /// </exception>
         public Gmic(IGmicOutputImageFactory<TGmicBitmap> outputImageFactory)
         {
             if (outputImageFactory is null)

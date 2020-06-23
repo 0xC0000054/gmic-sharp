@@ -14,13 +14,17 @@ using System.Runtime.InteropServices;
 
 namespace GmicSharp.Interop
 {
-    internal static class Gmic_X86
+    internal static class GmicNativeMethods
     {
-        private const string DllName = "GmicSharpNative_x86.dll";
+        private const string DllName = LibraryLoader.DllName;
         private const CallingConvention DllCallConv = CallingConvention.Cdecl;
 
         [DllImport(DllName, CallingConvention = DllCallConv)]
-        internal static extern SafeGmicImageListX86 GmicImageListCreate();
+        internal static extern void GetLibraryVersion(out int major, out int minor, out int patch);
+
+
+        [DllImport(DllName, CallingConvention = DllCallConv)]
+        internal static extern SafeGmicImageList GmicImageListCreate();
 
         [DllImport(DllName, CallingConvention = DllCallConv)]
         internal static extern void GmicImageListDestroy(IntPtr handle);
@@ -35,14 +39,15 @@ namespace GmicSharp.Interop
         internal static extern GmicStatus GmicImageListGetImageInfo(SafeGmicImageList list,
                                                                     uint index,
                                                                     out GmicImageListItemInfo info);
+
         [DllImport(DllName, CallingConvention = DllCallConv)]
         internal static extern GmicStatus GmicImageListAdd(SafeGmicImageList list,
-                                                   uint width,
-                                                   uint height,
-                                                   uint stride,
-                                                   IntPtr scan0,
-                                                   NativeImageFormat format,
-                                                   [MarshalAs(UnmanagedType.LPUTF8Str)] string name);
+                                                           uint width,
+                                                           uint height,
+                                                           uint stride,
+                                                           IntPtr scan0,
+                                                           NativeImageFormat format,
+                                                           [MarshalAs(UnmanagedType.LPUTF8Str)] string name);
 
         [DllImport(DllName, CallingConvention = DllCallConv)]
         internal static extern GmicStatus GmicImageListCopyToOutput(SafeGmicImageList list,

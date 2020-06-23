@@ -28,9 +28,20 @@ namespace GmicSharp
         /// <summary>
         /// Initializes a new instance of the <see cref="GmicImageList"/> class.
         /// </summary>
-        /// <exception cref="GmicException">Failed to create the native G'MIC image list.</exception>
+        /// <exception cref="GmicException">
+        /// The native library could not be found or loaded.
+        ///
+        /// or
+        ///
+        /// The GmicSharp and libGmicSharpNative versions do not match.
+        ///
+        /// or
+        ///
+        /// Failed to create the native G'MIC image list.
+        /// </exception>
         public GmicImageList()
         {
+            GmicSharpNative.Initialize();
             nativeImageList = GmicNative.CreateGmicImageList();
 
             if (nativeImageList == null || nativeImageList.IsInvalid)

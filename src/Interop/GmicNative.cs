@@ -19,58 +19,28 @@ namespace GmicSharp.Interop
     {
         internal static SafeGmicImageList CreateGmicImageList()
         {
-            if (IntPtr.Size == 8)
-            {
-                return Gmic_X64.GmicImageListCreate();
-            }
-            else
-            {
-                return Gmic_X86.GmicImageListCreate();
-            }
+            return GmicNativeMethods.GmicImageListCreate();
         }
 
         internal static void GmicImageListClear(SafeGmicImageList list)
         {
             ValidateGmicImageList(list);
 
-            if (IntPtr.Size == 8)
-            {
-                Gmic_X64.GmicImageListClear(list);
-            }
-            else
-            {
-                Gmic_X86.GmicImageListClear(list);
-            }
+            GmicNativeMethods.GmicImageListClear(list);
         }
 
         internal static uint GmicImageListGetCount(SafeGmicImageList list)
         {
             ValidateGmicImageList(list);
 
-            if (IntPtr.Size == 8)
-            {
-                return Gmic_X64.GmicImageListGetCount(list);
-            }
-            else
-            {
-                return Gmic_X86.GmicImageListGetCount(list);
-            }
+            return GmicNativeMethods.GmicImageListGetCount(list);
         }
 
         internal static void GmicImageListGetImageInfo(SafeGmicImageList list, uint index, out GmicImageListItemInfo info)
         {
             ValidateGmicImageList(list);
 
-            GmicStatus status;
-
-            if (IntPtr.Size == 8)
-            {
-                status = Gmic_X64.GmicImageListGetImageInfo(list, index, out info);
-            }
-            else
-            {
-                status = Gmic_X86.GmicImageListGetImageInfo(list, index, out info);
-            }
+            GmicStatus status = GmicNativeMethods.GmicImageListGetImageInfo(list, index, out info);
 
             if (status != GmicStatus.Ok)
             {
@@ -90,28 +60,13 @@ namespace GmicSharp.Interop
 
             NativeImageFormat nativeImageFormat = ConvertToNativeImageFormat(format);
 
-            GmicStatus status;
-
-            if (IntPtr.Size == 8)
-            {
-                status = Gmic_X64.GmicImageListAdd(list,
-                                                   width,
-                                                   height,
-                                                   stride,
-                                                   scan0,
-                                                   nativeImageFormat,
-                                                   string.IsNullOrWhiteSpace(name) ? null : name);
-            }
-            else
-            {
-                status = Gmic_X86.GmicImageListAdd(list,
-                                                   width,
-                                                   height,
-                                                   stride,
-                                                   scan0,
-                                                   nativeImageFormat,
-                                                   string.IsNullOrWhiteSpace(name) ? null : name);
-            }
+            GmicStatus status = GmicNativeMethods.GmicImageListAdd(list,
+                                                          width,
+                                                          height,
+                                                          stride,
+                                                          scan0,
+                                                          nativeImageFormat,
+                                                          string.IsNullOrWhiteSpace(name) ? null : name);
 
             if (status != GmicStatus.Ok)
             {
@@ -131,29 +86,13 @@ namespace GmicSharp.Interop
 
             NativeImageFormat nativeImageFormat = ConvertToNativeImageFormat(format);
 
-            GmicStatus status;
-
-            if (IntPtr.Size == 8)
-            {
-                status = Gmic_X64.GmicImageListCopyToOutput(list,
-                                                            index,
-                                                            width,
-                                                            height,
-                                                            stride,
-                                                            scan0,
-                                                            nativeImageFormat);
-            }
-            else
-            {
-                status = Gmic_X86.GmicImageListCopyToOutput(list,
-                                                            index,
-                                                            width,
-                                                            height,
-                                                            stride,
-                                                            scan0,
-                                                            nativeImageFormat);
-            }
-
+            GmicStatus status = GmicNativeMethods.GmicImageListCopyToOutput(list,
+                                                                   index,
+                                                                   width,
+                                                                   height,
+                                                                   stride,
+                                                                   scan0,
+                                                                   nativeImageFormat);
             if (status != GmicStatus.Ok)
             {
                 HandleError(status);
@@ -171,16 +110,7 @@ namespace GmicSharp.Interop
 
             GmicErrorInfo errorInfo = new GmicErrorInfo();
 
-            GmicStatus status;
-
-            if (IntPtr.Size == 8)
-            {
-                status = Gmic_X64.RunGmic(list, options, errorInfo);
-            }
-            else
-            {
-                status = Gmic_X86.RunGmic(list, options, errorInfo);
-            }
+            GmicStatus status = GmicNativeMethods.RunGmic(list, options, errorInfo);
 
             if (status != GmicStatus.Ok)
             {
