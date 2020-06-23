@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * `RunGmic(string)` is now a synchronous call, use `RunGmicAsync` or `RunGmicTaskAsync` for asynchronous calls **(breaking change)**.
  * Raise the `RunGmicCompleted` and `RunGmicProgressChanged` events on the thread that called `RunGmicAsync`.
  * `GdiPlusGmicBitmap` now checks if the class has been disposed before using the bitmap.
+ * Changed the native library names and deployment location to work with NuGet.
 
 ### Fixed
 
