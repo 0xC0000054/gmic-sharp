@@ -34,7 +34,7 @@ namespace GmicSharp
 
             switch (gmicPixelFormat)
             {
-                case GmicPixelFormat.Gray:
+                case GmicPixelFormat.Gray8:
                 case GmicPixelFormat.Rgb24:
                     format = PixelFormat.Format24bppRgb;
                     break;

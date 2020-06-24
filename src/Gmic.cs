@@ -486,7 +486,7 @@ namespace GmicSharp
                 switch (imageData.format)
                 {
                     case Interop.NativeImageFormat.Gray8:
-                        gmicPixelFormat = GmicPixelFormat.Gray;
+                        gmicPixelFormat = GmicPixelFormat.Gray8;
                         break;
                     case Interop.NativeImageFormat.Rgb888:
                         gmicPixelFormat = GmicPixelFormat.Rgb24;

@@ -99,7 +99,7 @@ namespace GmicSharp.Interop
         {
             switch (format)
             {
-                case GmicPixelFormat.Gray:
+                case GmicPixelFormat.Gray8:
                     return NativeImageFormat.Gray8;
                 case GmicPixelFormat.Rgb24:
                     return NativeImageFormat.Rgb888;

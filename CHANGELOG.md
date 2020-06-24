@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * `GdiPlusGmicBitmap` now checks if the class has been disposed before using the bitmap.
  * Changed the native library names and deployment location to work with NuGet.
  * Custom `GmicBitmap` classes now have to perform their own conversion to/from the G'MIC image format **(breaking change)**.
+ * Rename the `Gray` value in the `GmicPixelFormat` enumeration to `Gray8` **(breaking change)**.
 
 ### Fixed
 
