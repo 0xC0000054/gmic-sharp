@@ -17,17 +17,17 @@ namespace GmicSharp
     public enum GmicPixelFormat
     {
         /// <summary>
-        /// An 8-bits-per-pixel gray scale format.
+        /// An 8 bits-per-pixel grayscale format.
         /// </summary>
         Gray,
 
         /// <summary>
-        /// An interleaved 24-bits-per-pixel format that uses RGB color ordering.
+        /// A 24 bits-per-pixel format; Each channel (red, green and blue) is allocated 8 bits.
         /// </summary>
         Rgb24,
 
         /// <summary>
-        /// An interleaved 32-bits-per-pixel format that uses RGBA color ordering.
+        /// A 32 bits-per-pixel format; Each channel (red, green, blue and alpha) is allocated 8 bits.
         /// </summary>
         Rgba32
     }
