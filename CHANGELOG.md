@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * The `CustomUserFilePath` property in  `Gmic<TGmicBitmap>`.
  * The `RunGmic(string, CancellationToken)` method.
  * The `GmicBitmapLock` structure.
+ * The `Bgr24`, `Bgr32`, `Bgra32` and `Rgb32` values from the `GmicPixelFormat` enumeration.
 
 ## v0.6.0
 

@@ -22,29 +22,9 @@ namespace GmicSharp
         Gray,
 
         /// <summary>
-        /// An interleaved 24-bits-per-pixel format that uses BGR color ordering.
-        /// </summary>
-        Bgr24,
-
-        /// <summary>
         /// An interleaved 24-bits-per-pixel format that uses RGB color ordering.
         /// </summary>
         Rgb24,
-
-        /// <summary>
-        /// An interleaved 32-bits-per-pixel format that uses BGR color ordering.
-        /// </summary>
-        Bgr32,
-
-        /// <summary>
-        /// An interleaved 32-bits-per-pixel format that uses RGB color ordering.
-        /// </summary>
-        Rgb32,
-
-        /// <summary>
-        /// An interleaved 32-bits-per-pixel format that uses BGRA color ordering.
-        /// </summary>
-        Bgra32,
 
         /// <summary>
         /// An interleaved 32-bits-per-pixel format that uses RGBA color ordering.

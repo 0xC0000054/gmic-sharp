@@ -67,7 +67,7 @@ namespace GmicSharp
         {
             if (!IsSupportedPixelFormat(format))
             {
-                ExceptionUtil.ThrowArgumentException("The GDI+ PixelFormat must be Format24bppRgb, Format32bppRgb or Format32bppArgb.");
+                ExceptionUtil.ThrowArgumentException("The GDI+ PixelFormat must be Format24bppRgb or Format32bppArgb.");
             }
 
             bitmap = new Bitmap(width, height, format);
@@ -135,16 +135,13 @@ namespace GmicSharp
             switch (bitmap.PixelFormat)
             {
                 case PixelFormat.Format24bppRgb:
-                    gmicPixelFormat = GmicPixelFormat.Bgr24;
-                    break;
-                case PixelFormat.Format32bppRgb:
-                    gmicPixelFormat = GmicPixelFormat.Bgr32;
+                    gmicPixelFormat = GmicPixelFormat.Rgb24;
                     break;
                 case PixelFormat.Format32bppArgb:
-                    gmicPixelFormat = GmicPixelFormat.Bgra32;
+                    gmicPixelFormat = GmicPixelFormat.Rgba32;
                     break;
                 default:
-                    throw new InvalidOperationException("The GDI+ PixelFormat must be Format24bppRgb, Format32bppRgb or Format32bppArgb.");
+                    throw new InvalidOperationException("The GDI+ PixelFormat must be Format24bppRgb or Format32bppArgb.");
             }
 
             return gmicPixelFormat;
@@ -534,7 +531,6 @@ namespace GmicSharp
         private static bool IsSupportedPixelFormat(PixelFormat format)
         {
             return format == PixelFormat.Format24bppRgb ||
-                   format == PixelFormat.Format32bppRgb ||
                    format == PixelFormat.Format32bppArgb;
         }
 
