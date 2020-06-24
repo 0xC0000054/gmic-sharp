@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * Raise the `RunGmicCompleted` and `RunGmicProgressChanged` events on the thread that called `RunGmicAsync`.
  * `GdiPlusGmicBitmap` now checks if the class has been disposed before using the bitmap.
  * Changed the native library names and deployment location to work with NuGet.
+ * Custom `GmicBitmap` classes now have to perform their own conversion to/from the G'MIC image format **(breaking change)**.
 
 ### Fixed
 
@@ -31,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * The `CustomUserFilePath` property in  `Gmic<TGmicBitmap>`.
  * The `RunGmic(string, CancellationToken)` method.
+ * The `GmicBitmapLock` structure.
 
 ## v0.6.0
 

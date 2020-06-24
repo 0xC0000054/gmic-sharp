@@ -404,11 +404,6 @@ namespace GmicSharp
                 if (error == null && !canceled)
                 {
                     outputGmicBitmaps = CreateOutputBitmaps();
-
-                    for (int i = 0; i < outputGmicBitmaps.Count; i++)
-                    {
-                        gmicImages.CopyToOutput((uint)i, outputGmicBitmaps[i]);
-                    }
                 }
                 gmicImages.Clear();
             }
@@ -473,47 +468,45 @@ namespace GmicSharp
 
             for (int i = 0; i < gmicBitmaps.Capacity; i++)
             {
-                Interop.GmicImageListItemInfo itemInfo;
+                uint index = (uint)i;
 
-                gmicImages.GetImageInfo((uint)i, out itemInfo);
+                Interop.GmicImageListImageData imageData;
 
-                if (itemInfo.width > int.MaxValue || itemInfo.height > int.MaxValue)
+                gmicImages.GetImageData(index, out imageData);
+
+                if (imageData.width > int.MaxValue || imageData.height > int.MaxValue)
                 {
                     throw new NotSupportedException($"The output G'MIC image dimensions exceed { int.MaxValue }.");
                 }
 
-                int width = (int)itemInfo.width;
-                int height = (int)itemInfo.height;
+                int width = (int)imageData.width;
+                int height = (int)imageData.height;
 
                 GmicPixelFormat gmicPixelFormat;
-                switch (itemInfo.format)
+                switch (imageData.format)
                 {
                     case Interop.NativeImageFormat.Gray8:
                         gmicPixelFormat = GmicPixelFormat.Gray;
                         break;
-                    case Interop.NativeImageFormat.Bgr888:
-                        gmicPixelFormat = GmicPixelFormat.Bgr24;
-                        break;
-                    case Interop.NativeImageFormat.Bgr888x:
-                        gmicPixelFormat = GmicPixelFormat.Bgr32;
-                        break;
-                    case Interop.NativeImageFormat.Bgra8888:
-                        gmicPixelFormat = GmicPixelFormat.Bgra32;
-                        break;
                     case Interop.NativeImageFormat.Rgb888:
                         gmicPixelFormat = GmicPixelFormat.Rgb24;
                         break;
-                    case Interop.NativeImageFormat.Rgb888x:
-                        gmicPixelFormat = GmicPixelFormat.Rgb32;
-                        break;
+                    case Interop.NativeImageFormat.GrayAlpha88:
                     case Interop.NativeImageFormat.Rgba8888:
                         gmicPixelFormat = GmicPixelFormat.Rgba32;
                         break;
                     default:
-                        throw new InvalidOperationException($"Unsupported { nameof(Interop.NativeImageFormat) } value: { itemInfo.format }.");
+                        throw new InvalidOperationException($"Unsupported { nameof(Interop.NativeImageFormat) } value: { imageData.format }.");
                 }
 
-                gmicBitmaps.Add(outputImageFactory.Create(width, height, gmicPixelFormat));
+                // G'MIC uses a planar format, so the stride between rows is the image width.
+                int planeStride = width;
+
+                TGmicBitmap bitmap = outputImageFactory.Create(width, height, gmicPixelFormat);
+
+                bitmap.CopyFromGmicBitmap(imageData.format, imageData.pixels, planeStride);
+
+                gmicBitmaps.Add(bitmap);
             }
 
             return new OutputImageCollection<TGmicBitmap>(gmicBitmaps);

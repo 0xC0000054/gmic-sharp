@@ -115,20 +115,16 @@ namespace GmicSharp
             uint height = (uint)bitmap.Height;
             GmicPixelFormat format = bitmap.GetGmicPixelFormat();
 
-            GmicBitmapLock bitmapLock = bitmap.Lock();
+            NativeImageFormat nativeImageFormat;
+            GmicImageListPixelData pixelData;
+            // G'MIC uses a planar format, so the stride between rows is the image width.
+            int planeStride = (int)width;
 
-            try
-            {
-                IntPtr scan0 = bitmapLock.Scan0;
-                uint stride = (uint)bitmapLock.Stride;
+            // Add a new image to the native G'MIC image list.
+            GmicNative.GmicImageListAdd(nativeImageList, width, height, format, name, out pixelData, out nativeImageFormat);
 
-                GmicNative.GmicImageListAdd(nativeImageList, width, height, stride, scan0, format, name);
-            }
-            finally
-            {
-                bitmap.Unlock();
-            }
-
+            // Copy the pixel data to the native image.
+            bitmap.CopyToGmicBitmap(nativeImageFormat, pixelData, planeStride);
         }
 
         /// <summary>
@@ -143,53 +139,17 @@ namespace GmicSharp
         }
 
         /// <summary>
-        /// Gets the image information.
+        /// Gets the image data.
         /// </summary>
         /// <param name="index">The index.</param>
-        /// <param name="info">The information.</param>
+        /// <param name="data">The image data.</param>
         /// <exception cref="GmicException">The image list index is invalid.</exception>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
-        public void GetImageInfo(uint index, out GmicImageListItemInfo info)
+        public void GetImageData(uint index, out GmicImageListImageData data)
         {
             VerifyNotDisposed();
 
-            GmicNative.GmicImageListGetImageInfo(nativeImageList, index, out info);
-        }
-
-        /// <summary>
-        /// Copies the image at the specified index to the output bitmap.
-        /// </summary>
-        /// <param name="index">The index.</param>
-        /// <param name="bitmap">The bitmap.</param>
-        /// <exception cref="GmicException">The image list index is invalid.</exception>
-        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
-        public void CopyToOutput(uint index, GmicBitmap bitmap)
-        {
-            if (bitmap is null)
-            {
-                ExceptionUtil.ThrowArgumentNullException(nameof(bitmap));
-            }
-
-            VerifyNotDisposed();
-
-            uint width = (uint)bitmap.Width;
-            uint height = (uint)bitmap.Height;
-            GmicPixelFormat format = bitmap.GetGmicPixelFormat();
-
-            GmicBitmapLock bitmapLock = bitmap.Lock();
-
-            try
-            {
-                IntPtr scan0 = bitmapLock.Scan0;
-                uint stride = (uint)bitmapLock.Stride;
-
-                GmicNative.GmicImageListCopyToOutput(nativeImageList, index, width, height, stride, scan0, format);
-            }
-            finally
-            {
-                bitmap.Unlock();
-            }
-
+            GmicNative.GmicImageListGetImageData(nativeImageList, index, out data);
         }
 
         /// <summary>

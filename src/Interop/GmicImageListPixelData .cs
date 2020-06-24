@@ -13,11 +13,21 @@ using System.Runtime.InteropServices;
 
 namespace GmicSharp.Interop
 {
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct GmicImageListItemInfo
+    [StructLayout(LayoutKind.Explicit)]
+    internal unsafe struct RedGrayUnion
     {
-        public uint width;
-        public uint height;
-        public NativeImageFormat format;
+        [FieldOffset(0)]
+        public float* red;
+        [FieldOffset(0)]
+        public float* gray;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal unsafe class GmicImageListPixelData
+    {
+        public RedGrayUnion redGrayUnion;
+        public float* green;
+        public float* blue;
+        public float* alpha;
     }
 }

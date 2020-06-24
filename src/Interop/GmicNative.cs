@@ -36,11 +36,13 @@ namespace GmicSharp.Interop
             return GmicNativeMethods.GmicImageListGetCount(list);
         }
 
-        internal static void GmicImageListGetImageInfo(SafeGmicImageList list, uint index, out GmicImageListItemInfo info)
+        internal static void GmicImageListGetImageData(SafeGmicImageList list, uint index, out GmicImageListImageData data)
         {
             ValidateGmicImageList(list);
 
-            GmicStatus status = GmicNativeMethods.GmicImageListGetImageInfo(list, index, out info);
+            data = new GmicImageListImageData();
+
+            GmicStatus status = GmicNativeMethods.GmicImageListGetImageData(list, index, data);
 
             if (status != GmicStatus.Ok)
             {
@@ -51,48 +53,23 @@ namespace GmicSharp.Interop
         internal static void GmicImageListAdd(SafeGmicImageList list,
                                               uint width,
                                               uint height,
-                                              uint stride,
-                                              IntPtr scan0,
                                               GmicPixelFormat format,
-                                              string name)
+                                              string name,
+                                              out GmicImageListPixelData pixelData,
+                                              out NativeImageFormat nativeImageFormat)
         {
             ValidateGmicImageList(list);
 
-            NativeImageFormat nativeImageFormat = ConvertToNativeImageFormat(format);
+            pixelData = new GmicImageListPixelData();
+            nativeImageFormat = ConvertToNativeImageFormat(format);
 
             GmicStatus status = GmicNativeMethods.GmicImageListAdd(list,
-                                                          width,
-                                                          height,
-                                                          stride,
-                                                          scan0,
-                                                          nativeImageFormat,
-                                                          string.IsNullOrWhiteSpace(name) ? null : name);
-
-            if (status != GmicStatus.Ok)
-            {
-                HandleError(status);
-            }
-        }
-
-        internal static void GmicImageListCopyToOutput(SafeGmicImageList list,
-                                                       uint index,
-                                                       uint width,
-                                                       uint height,
-                                                       uint stride,
-                                                       IntPtr scan0,
-                                                       GmicPixelFormat format)
-        {
-            ValidateGmicImageList(list);
-
-            NativeImageFormat nativeImageFormat = ConvertToNativeImageFormat(format);
-
-            GmicStatus status = GmicNativeMethods.GmicImageListCopyToOutput(list,
-                                                                   index,
                                                                    width,
                                                                    height,
-                                                                   stride,
-                                                                   scan0,
-                                                                   nativeImageFormat);
+                                                                   nativeImageFormat,
+                                                                   string.IsNullOrWhiteSpace(name) ? null : name,
+                                                                   pixelData);
+
             if (status != GmicStatus.Ok)
             {
                 HandleError(status);
@@ -125,15 +102,11 @@ namespace GmicSharp.Interop
                 case GmicPixelFormat.Gray:
                     return NativeImageFormat.Gray8;
                 case GmicPixelFormat.Bgr24:
-                    return NativeImageFormat.Bgr888;
                 case GmicPixelFormat.Rgb24:
-                    return NativeImageFormat.Rgb888;
                 case GmicPixelFormat.Bgr32:
-                    return NativeImageFormat.Bgr888x;
                 case GmicPixelFormat.Rgb32:
-                    return NativeImageFormat.Rgb888x;
+                    return NativeImageFormat.Rgb888;
                 case GmicPixelFormat.Bgra32:
-                    return NativeImageFormat.Bgra8888;
                 case GmicPixelFormat.Rgba32:
                     return NativeImageFormat.Rgba8888;
                 default:

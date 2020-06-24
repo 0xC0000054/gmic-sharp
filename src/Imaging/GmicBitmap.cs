@@ -9,7 +9,9 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+using GmicSharp.Interop;
 using System;
+using System.ComponentModel;
 
 namespace GmicSharp
 {
@@ -68,15 +70,166 @@ namespace GmicSharp
         public abstract GmicPixelFormat GetGmicPixelFormat();
 
         /// <summary>
-        /// Locks the bitmap in memory for unsafe access to the pixel data.
+        /// Copies the pixel data from a G/MIC image into this instance.
         /// </summary>
-        /// <returns>A <see cref="GmicBitmapLock"/> instance.</returns>
-        public abstract GmicBitmapLock Lock();
+        /// <param name="outputImageFormat">The output image format.</param>
+        /// <param name="pixelData">The pixel data.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        /// <exception cref="InvalidEnumArgumentException"><paramref name="outputImageFormat"/> is not valid.</exception>
+        internal unsafe void CopyFromGmicBitmap(NativeImageFormat outputImageFormat, GmicImageListPixelData pixelData, int planeStride)
+        {
+            switch (outputImageFormat)
+            {
+                case NativeImageFormat.Gray8:
+                    CopyFromGmicImageGray(pixelData.redGrayUnion.gray, planeStride);
+                    break;
+                case NativeImageFormat.GrayAlpha88:
+                    CopyFromGmicImageGrayAlpha(pixelData.redGrayUnion.gray, pixelData.alpha, planeStride);
+                    break;
+                case NativeImageFormat.Rgb888:
+                    CopyFromGmicImageRGB(pixelData.redGrayUnion.red, pixelData.green, pixelData.blue, planeStride);
+                    break;
+                case NativeImageFormat.Rgba8888:
+                    CopyFromGmicImageRGBA(pixelData.redGrayUnion.red, pixelData.green, pixelData.blue, pixelData.alpha, planeStride);
+                    break;
+                default:
+                    throw new InvalidEnumArgumentException(nameof(outputImageFormat), (int)outputImageFormat, typeof(NativeImageFormat));
+            }
+        }
 
         /// <summary>
-        /// Unlocks the bitmap.
+        /// Copies the pixel data from this instance into a G/MIC image.
         /// </summary>
-        public abstract void Unlock();
+        /// <param name="gmicImageFormat">The G'MIC image format.</param>
+        /// <param name="pixelData">The pixel data.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        /// <exception cref="InvalidEnumArgumentException"><paramref name="gmicImageFormat"/> is not valid.</exception>
+        internal unsafe void CopyToGmicBitmap(NativeImageFormat gmicImageFormat, GmicImageListPixelData pixelData, int planeStride)
+        {
+            switch (gmicImageFormat)
+            {
+                case NativeImageFormat.Gray8:
+                    CopyToGmicImageGray(pixelData.redGrayUnion.gray, planeStride);
+                    break;
+                case NativeImageFormat.GrayAlpha88:
+                    CopyToGmicImageGrayAlpha(pixelData.redGrayUnion.gray, pixelData.alpha, planeStride);
+                    break;
+                case NativeImageFormat.Rgb888:
+                    CopyToGmicImageRGB(pixelData.redGrayUnion.red, pixelData.green, pixelData.blue, planeStride);
+                    break;
+                case NativeImageFormat.Rgba8888:
+                    CopyToGmicImageRGBA(pixelData.redGrayUnion.red, pixelData.green, pixelData.blue, pixelData.alpha, planeStride);
+                    break;
+                default:
+                    throw new InvalidEnumArgumentException(nameof(gmicImageFormat), (int)gmicImageFormat, typeof(NativeImageFormat));
+            }
+        }
+
+        /// <summary>
+        /// Converts a byte to a G'MIC float.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The converted value.</returns>
+        protected static float ByteToGmicFloat(byte value)
+        {
+            // The G'MIC float uses the range of [0, 255] for 8-bit-per-channel images.
+            return value;
+        }
+
+        /// <summary>
+        /// Converts a G'MIC float to a byte.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The converted value.</returns>
+        protected static byte GmicFloatToByte(float value)
+        {
+            // The G'MIC float uses the range of [0, 255] for 8-bit-per-channel images.
+            return (byte)(value > 255f ? 255 : value < 0f ? 0 : value);
+        }
+
+        /// <summary>
+        /// Copies the pixel data from a G'MIC image that uses a gray-scale format into this instance.
+        /// </summary>
+        /// <param name="grayPlane">The gray plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected abstract unsafe void CopyFromGmicImageGray(float* grayPlane, int planeStride);
+
+        /// <summary>
+        /// Copies the pixel data from a G'MIC image that uses a gray-scale with alpha format into this instance.
+        /// </summary>
+        /// <param name="grayPlane">The gray plane.</param>
+        /// <param name="alphaPlane">The alpha plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected abstract unsafe void CopyFromGmicImageGrayAlpha(float* grayPlane, float* alphaPlane, int planeStride);
+
+        /// <summary>
+        /// Copies the pixel data from a G'MIC image that uses a RGB format into this instance.
+        /// </summary>
+        /// <param name="redPlane">The red plane.</param>
+        /// <param name="greenPlane">The green plane.</param>
+        /// <param name="bluePlane">The blue plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected abstract unsafe void CopyFromGmicImageRGB(float* redPlane,
+                                                            float* greenPlane,
+                                                            float* bluePlane,
+                                                            int planeStride);
+
+        /// <summary>
+        /// Copies the pixel data from a G'MIC image that uses a RGBA format into this instance.
+        /// </summary>
+        /// <param name="redPlane">The red plane.</param>
+        /// <param name="greenPlane">The green plane.</param>
+        /// <param name="bluePlane">The blue plane.</param>
+        /// <param name="alphaPlane">The alpha plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected abstract unsafe void CopyFromGmicImageRGBA(float* redPlane,
+                                                             float* greenPlane,
+                                                             float* bluePlane,
+                                                             float* alphaPlane,
+                                                             int planeStride);
+
+        /// <summary>
+        /// Copies the pixel data from this instance into a G'MIC image that uses a gray-scale format.
+        /// </summary>
+        /// <param name="grayPlane">The gray plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected abstract unsafe void CopyToGmicImageGray(float* grayPlane, int planeStride);
+
+        /// <summary>
+        /// Copies the pixel data from this instance into a G'MIC image that uses a gray-scale with alpha format.
+        /// </summary>
+        /// <param name="grayPlane">The gray plane.</param>
+        /// <param name="alphaPlane">The alpha plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected abstract unsafe void CopyToGmicImageGrayAlpha(float* grayPlane,
+                                                                float* alphaPlane,
+                                                                int planeStride);
+
+        /// <summary>
+        /// Copies the pixel data from this instance into a G'MIC image that uses a RGB format.
+        /// </summary>
+        /// <param name="redPlane">The red plane.</param>
+        /// <param name="greenPlane">The green plane.</param>
+        /// <param name="bluePlane">The blue plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected abstract unsafe void CopyToGmicImageRGB(float* redPlane,
+                                                          float* greenPlane,
+                                                          float* bluePlane,
+                                                          int planeStride);
+
+        /// <summary>
+        /// Copies the pixel data from this instance into a G'MIC image that uses a RGBA format.
+        /// </summary>
+        /// <param name="redPlane">The red plane.</param>
+        /// <param name="greenPlane">The green plane.</param>
+        /// <param name="bluePlane">The blue plane.</param>
+        /// <param name="alphaPlane">The alpha plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected abstract unsafe void CopyToGmicImageRGBA(float* redPlane,
+                                                           float* greenPlane,
+                                                           float* bluePlane,
+                                                           float* alphaPlane,
+                                                           int planeStride);
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.

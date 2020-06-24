@@ -25,7 +25,6 @@ namespace GmicSharp
 #pragma warning disable IDE0032 // Use auto property
         private Bitmap bitmap;
 #pragma warning restore IDE0032 // Use auto property
-        private BitmapData bitmapData;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GdiPlusGmicBitmap"/> class.
@@ -40,7 +39,6 @@ namespace GmicSharp
             }
 
             this.bitmap = CloneOrConvertBitmap(bitmap);
-            bitmapData = null;
         }
 
         /// <summary>
@@ -56,7 +54,6 @@ namespace GmicSharp
             }
 
             bitmap = ConvertImageToBitmap(image);
-            bitmapData = null;
         }
 
         /// <summary>
@@ -74,7 +71,6 @@ namespace GmicSharp
             }
 
             bitmap = new Bitmap(width, height, format);
-            bitmapData = null;
         }
 
         /// <summary>
@@ -155,39 +151,296 @@ namespace GmicSharp
         }
 
         /// <summary>
-        /// Locks the bitmap in memory for unsafe access to the pixel data.
+        /// Copies the pixel data from a G'MIC image that uses a gray-scale format into this instance.
         /// </summary>
-        /// <returns>A <see cref="GmicBitmapLock"/> instance.</returns>
-        /// <exception cref="InvalidOperationException">The bitmap is already locked.</exception>
-        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
-        public override GmicBitmapLock Lock()
+        /// <param name="grayPlane">The gray plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected override unsafe void CopyFromGmicImageGray(float* grayPlane, int planeStride)
         {
-            if (bitmapData != null)
+            // Gray-scale images are treated as Format24bppRgb.
+            BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+
+            try
             {
-                ExceptionUtil.ThrowInvalidOperationException("The bitmap is already locked.");
+                int width = bitmapData.Width;
+                int height = bitmapData.Height;
+                int stride = bitmapData.Stride;
+                byte* scan0 = (byte*)bitmapData.Scan0;
+
+                for (int y = 0; y < height; y++)
+                {
+                    float* src = grayPlane + (y * planeStride);
+                    byte* dst = scan0 + (y * stride);
+
+                    for (int x = 0; x < width; x++)
+                    {
+                        dst[0] = dst[1] = dst[2] = GmicFloatToByte(*src);
+
+                        src++;
+                        dst += 3;
+                    }
+                }
             }
-
-            VerifyNotDisposed();
-
-            bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                                         ImageLockMode.ReadWrite,
-                                         bitmap.PixelFormat);
-
-            return new GmicBitmapLock(bitmapData.Scan0, bitmapData.Stride);
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
+            }
         }
 
         /// <summary>
-        /// Unlocks the bitmap.
+        /// Copies the pixel data from a G'MIC image that uses a gray-scale with alpha format into this instance.
         /// </summary>
-        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
-        public override void Unlock()
+        /// <param name="grayPlane">The gray plane.</param>
+        /// <param name="alphaPlane">The alpha plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected override unsafe void CopyFromGmicImageGrayAlpha(float* grayPlane, float* alphaPlane, int planeStride)
         {
-            VerifyNotDisposed();
+            // Gray-scale images with alpha are treated as Format32bppArgb.
+            BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
 
-            if (bitmapData != null)
+            try
+            {
+                int width = bitmapData.Width;
+                int height = bitmapData.Height;
+                int stride = bitmapData.Stride;
+                byte* scan0 = (byte*)bitmapData.Scan0;
+
+                for (int y = 0; y < height; y++)
+                {
+                    float* srcGray = grayPlane + (y * planeStride);
+                    float* srcAlpha = alphaPlane + (y * planeStride);
+                    byte* dst = scan0 + (y * stride);
+
+                    for (int x = 0; x < width; x++)
+                    {
+                        dst[0] = dst[1] = dst[2] = GmicFloatToByte(*srcGray);
+                        dst[3] = GmicFloatToByte(*srcAlpha);
+
+                        srcGray++;
+                        srcAlpha++;
+                        dst += 4;
+                    }
+                }
+            }
+            finally
             {
                 bitmap.UnlockBits(bitmapData);
-                bitmapData = null;
+            }
+        }
+
+        /// <summary>
+        /// Copies the pixel data from a G'MIC image that uses a RGB format into this instance.
+        /// </summary>
+        /// <param name="redPlane">The red plane.</param>
+        /// <param name="greenPlane">The green plane.</param>
+        /// <param name="bluePlane">The blue plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected override unsafe void CopyFromGmicImageRGB(float* redPlane, float* greenPlane, float* bluePlane, int planeStride)
+        {
+            // RGB images are treated as Format24bppRgb.
+            BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+
+            try
+            {
+                int width = bitmapData.Width;
+                int height = bitmapData.Height;
+                int stride = bitmapData.Stride;
+                byte* scan0 = (byte*)bitmapData.Scan0;
+
+                for (int y = 0; y < height; y++)
+                {
+                    float* srcR = redPlane + (y * planeStride);
+                    float* srcG = greenPlane + (y * planeStride);
+                    float* srcB = bluePlane + (y * planeStride);
+                    byte* dst = scan0 + (y * stride);
+
+                    for (int x = 0; x < width; x++)
+                    {
+                        // Swap RGB to BGR.
+                        dst[2] = GmicFloatToByte(*srcR);
+                        dst[1] = GmicFloatToByte(*srcG);
+                        dst[0] = GmicFloatToByte(*srcB);
+
+                        srcR++;
+                        srcG++;
+                        srcB++;
+                        dst += 3;
+                    }
+                }
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
+            }
+        }
+
+
+        /// <summary>
+        /// Copies the pixel data from a G'MIC image that uses a RGBA format into this instance.
+        /// </summary>
+        /// <param name="redPlane">The red plane.</param>
+        /// <param name="greenPlane">The green plane.</param>
+        /// <param name="bluePlane">The blue plane.</param>
+        /// <param name="alphaPlane">The alpha plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected override unsafe void CopyFromGmicImageRGBA(float* redPlane, float* greenPlane, float* bluePlane, float* alphaPlane, int planeStride)
+        {
+            // RGBA images are treated as Format32bppArgb.
+            BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+
+            try
+            {
+                int width = bitmapData.Width;
+                int height = bitmapData.Height;
+                int stride = bitmapData.Stride;
+                byte* scan0 = (byte*)bitmapData.Scan0;
+
+                for (int y = 0; y < height; y++)
+                {
+                    float* srcR = redPlane + (y * planeStride);
+                    float* srcG = greenPlane + (y * planeStride);
+                    float* srcB = bluePlane + (y * planeStride);
+                    float* srcA = alphaPlane + (y * planeStride);
+                    byte* dst = scan0 + (y * stride);
+
+                    for (int x = 0; x < width; x++)
+                    {
+                        // Swap RGB to BGR.
+                        dst[2] = GmicFloatToByte(*srcR);
+                        dst[1] = GmicFloatToByte(*srcG);
+                        dst[0] = GmicFloatToByte(*srcB);
+                        dst[3] = GmicFloatToByte(*srcA);
+
+                        srcR++;
+                        srcG++;
+                        srcB++;
+                        srcA++;
+                        dst += 4;
+                    }
+                }
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
+            }
+        }
+
+        /// <summary>
+        /// Copies the pixel data from this instance into a G'MIC image that uses a gray-scale format.
+        /// </summary>
+        /// <param name="grayPlane">The gray plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected override unsafe void CopyToGmicImageGray(float* grayPlane, int planeStride)
+        {
+            // GDI+ does not have a gray-scale format.
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Copies the pixel data from this instance into a G'MIC image that uses a gray-scale with alpha format.
+        /// </summary>
+        /// <param name="grayPlane">The gray plane.</param>
+        /// <param name="alphaPlane">The alpha plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected override unsafe void CopyToGmicImageGrayAlpha(float* grayPlane, float* alphaPlane, int planeStride)
+        {
+            // GDI+ does not have a gray-scale with alpha format.
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Copies the pixel data from this instance into a G'MIC image that uses a RGB format.
+        /// </summary>
+        /// <param name="redPlane">The red plane.</param>
+        /// <param name="greenPlane">The green plane.</param>
+        /// <param name="bluePlane">The blue plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected override unsafe void CopyToGmicImageRGB(float* redPlane, float* greenPlane, float* bluePlane, int planeStride)
+        {
+            // RGB images are treated as Format24bppRgb.
+            BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+
+            try
+            {
+                int width = bitmapData.Width;
+                int height = bitmapData.Height;
+                int stride = bitmapData.Stride;
+                byte* scan0 = (byte*)bitmapData.Scan0;
+
+                for (int y = 0; y < height; y++)
+                {
+                    byte* src = scan0 + (y * stride);
+                    float* dstR = redPlane + (y * planeStride);
+                    float* dstG = greenPlane + (y * planeStride);
+                    float* dstB = bluePlane + (y * planeStride);
+
+                    for (int x = 0; x < width; x++)
+                    {
+                        // Swap BGR to RGB.
+                        *dstR = ByteToGmicFloat(src[2]);
+                        *dstG = ByteToGmicFloat(src[1]);
+                        *dstB = ByteToGmicFloat(src[0]);
+
+                        dstR++;
+                        dstG++;
+                        dstB++;
+                        src += 3;
+                    }
+                }
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
+            }
+        }
+
+        /// <summary>
+        /// Copies the pixel data from this instance into a G'MIC image that uses a RGBA format.
+        /// </summary>
+        /// <param name="redPlane">The red plane.</param>
+        /// <param name="greenPlane">The green plane.</param>
+        /// <param name="bluePlane">The blue plane.</param>
+        /// <param name="alphaPlane">The alpha plane.</param>
+        /// <param name="planeStride">The plane stride.</param>
+        protected override unsafe void CopyToGmicImageRGBA(float* redPlane, float* greenPlane, float* bluePlane, float* alphaPlane, int planeStride)
+        {
+            // RGBA images are treated as Format32bppArgb.
+            BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+
+            try
+            {
+                int width = bitmapData.Width;
+                int height = bitmapData.Height;
+                int stride = bitmapData.Stride;
+                byte* scan0 = (byte*)bitmapData.Scan0;
+
+                for (int y = 0; y < height; y++)
+                {
+                    byte* src = scan0 + (y * stride);
+                    float* dstR = redPlane + (y * planeStride);
+                    float* dstG = greenPlane + (y * planeStride);
+                    float* dstB = bluePlane + (y * planeStride);
+                    float* dstA = alphaPlane + (y * planeStride);
+
+                    for (int x = 0; x < width; x++)
+                    {
+                        // Swap BGR to RGB.
+                        *dstR = ByteToGmicFloat(src[2]);
+                        *dstG = ByteToGmicFloat(src[1]);
+                        *dstB = ByteToGmicFloat(src[0]);
+                        *dstA = ByteToGmicFloat(src[3]);
+
+                        dstR++;
+                        dstG++;
+                        dstB++;
+                        dstA++;
+                        src += 4;
+                    }
+                }
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
             }
         }
 
