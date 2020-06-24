@@ -101,6 +101,8 @@ namespace GmicSharp.Interop
             {
                 case GmicPixelFormat.Gray8:
                     return NativeImageFormat.Gray8;
+                case GmicPixelFormat.GrayAlpha16:
+                    return NativeImageFormat.GrayAlpha88;
                 case GmicPixelFormat.Rgb24:
                     return NativeImageFormat.Rgb888;
                 case GmicPixelFormat.Rgba32:

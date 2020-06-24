@@ -38,6 +38,7 @@ namespace GmicSharp
                 case GmicPixelFormat.Rgb24:
                     format = PixelFormat.Format24bppRgb;
                     break;
+                case GmicPixelFormat.GrayAlpha16:
                 case GmicPixelFormat.Rgba32:
                     format = PixelFormat.Format32bppArgb;
                     break;

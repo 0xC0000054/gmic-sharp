@@ -488,10 +488,12 @@ namespace GmicSharp
                     case Interop.NativeImageFormat.Gray8:
                         gmicPixelFormat = GmicPixelFormat.Gray8;
                         break;
+                    case Interop.NativeImageFormat.GrayAlpha88:
+                        gmicPixelFormat = GmicPixelFormat.GrayAlpha16;
+                        break;
                     case Interop.NativeImageFormat.Rgb888:
                         gmicPixelFormat = GmicPixelFormat.Rgb24;
                         break;
-                    case Interop.NativeImageFormat.GrayAlpha88:
                     case Interop.NativeImageFormat.Rgba8888:
                         gmicPixelFormat = GmicPixelFormat.Rgba32;
                         break;

@@ -22,6 +22,11 @@ namespace GmicSharp
         Gray8,
 
         /// <summary>
+        /// A 16 bits-per-pixel format; Each channel (gray and alpha) is allocated 8 bits.
+        /// </summary>
+        GrayAlpha16,
+
+        /// <summary>
         /// A 24 bits-per-pixel format; Each channel (red, green and blue) is allocated 8 bits.
         /// </summary>
         Rgb24,
