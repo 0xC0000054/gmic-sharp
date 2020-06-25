@@ -54,7 +54,7 @@ namespace GmicSharp.Interop
 
             GmicNativeMethods.GetLibraryVersion(out int nativeLibMajorVersion, out int nativeLibMinorVersion, out _);
 
-            Version managedLibVersion = typeof(GmicSharpNative).Assembly.GetName().Version;
+            Version managedLibVersion = AssemblyVersionInfo.LibraryVersion;
 
             if (managedLibVersion.Major == 0)
             {

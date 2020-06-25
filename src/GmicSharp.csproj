@@ -30,8 +30,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="GenerateAssemblyVersionInfo\**" />
     <Compile Remove="GmicSharpDocs\**" />
+    <EmbeddedResource Remove="GenerateAssemblyVersionInfo\**" />
     <EmbeddedResource Remove="GmicSharpDocs\**" />
+    <None Remove="GenerateAssemblyVersionInfo\**" />
     <None Remove="GmicSharpDocs\**" />
   </ItemGroup>
 
@@ -39,8 +42,8 @@
     <None Remove="GmicSharp.xml" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="&quot;$(SolutionDir)GenerateAssemblyVersionInfo\bin\$(ConfigurationName)\netcoreapp3.1\GenerateAssemblyVersionInfo.exe&quot; &quot;$(SolutionDir)&quot;" />
+  </Target>
 
 </Project>

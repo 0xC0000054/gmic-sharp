@@ -298,3 +298,4 @@ __pycache__/
 
 src/GmicSharpDocs/Help/*
 src/GmicSharp.xml
+/src/Properties/AssemblyVersionInfo.cs
