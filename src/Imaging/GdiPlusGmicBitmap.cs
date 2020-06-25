@@ -132,16 +132,15 @@ namespace GmicSharp
 
             GmicPixelFormat gmicPixelFormat;
 
-            switch (bitmap.PixelFormat)
+            AnalyzeImageResult analyzeImageResult = AnalyzeImage();
+
+            if (analyzeImageResult.HasTransparency)
             {
-                case PixelFormat.Format24bppRgb:
-                    gmicPixelFormat = GmicPixelFormat.Rgb24;
-                    break;
-                case PixelFormat.Format32bppArgb:
-                    gmicPixelFormat = GmicPixelFormat.Rgba32;
-                    break;
-                default:
-                    throw new InvalidOperationException("The GDI+ PixelFormat must be Format24bppRgb or Format32bppArgb.");
+                gmicPixelFormat = analyzeImageResult.IsGrayscale ? GmicPixelFormat.GrayAlpha16 : GmicPixelFormat.Rgba32;
+            }
+            else
+            {
+                gmicPixelFormat = analyzeImageResult.IsGrayscale ? GmicPixelFormat.Gray8 : GmicPixelFormat.Rgb24;
             }
 
             return gmicPixelFormat;
@@ -329,8 +328,36 @@ namespace GmicSharp
         /// <param name="planeStride">The plane stride.</param>
         protected override unsafe void CopyToGmicImageGray(float* grayPlane, int planeStride)
         {
-            // GDI+ does not have a gray-scale format.
-            throw new NotImplementedException();
+            // GDI+ does not have a gray-scale format, but a gray-scale Format24bppRgb image
+            // will use this to save memory when running G'MIC.
+
+            BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+
+            try
+            {
+                int width = bitmapData.Width;
+                int height = bitmapData.Height;
+                int stride = bitmapData.Stride;
+                byte* scan0 = (byte*)bitmapData.Scan0;
+
+                for (int y = 0; y < height; y++)
+                {
+                    byte* src = scan0 + (y * stride);
+                    float* dstGray = grayPlane + (y * planeStride);
+
+                    for (int x = 0; x < width; x++)
+                    {
+                        *dstGray = ByteToGmicFloat(src[0]);
+
+                        dstGray++;
+                        src += 3;
+                    }
+                }
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
+            }
         }
 
         /// <summary>
@@ -341,8 +368,39 @@ namespace GmicSharp
         /// <param name="planeStride">The plane stride.</param>
         protected override unsafe void CopyToGmicImageGrayAlpha(float* grayPlane, float* alphaPlane, int planeStride)
         {
-            // GDI+ does not have a gray-scale with alpha format.
-            throw new NotImplementedException();
+            // GDI+ does not have a gray-scale with alpha format, but a gray-scale Format32bppArgb image
+            // will use this to save memory when running G'MIC.
+
+            BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+
+            try
+            {
+                int width = bitmapData.Width;
+                int height = bitmapData.Height;
+                int stride = bitmapData.Stride;
+                byte* scan0 = (byte*)bitmapData.Scan0;
+
+                for (int y = 0; y < height; y++)
+                {
+                    byte* src = scan0 + (y * stride);
+                    float* dstGray = grayPlane + (y * planeStride);
+                    float* dstAlpha = alphaPlane + (y * planeStride);
+
+                    for (int x = 0; x < width; x++)
+                    {
+                        *dstGray = ByteToGmicFloat(src[0]);
+                        *dstAlpha = ByteToGmicFloat(src[3]);
+
+                        dstGray++;
+                        dstAlpha++;
+                        src += 4;
+                    }
+                }
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
+            }
         }
 
         /// <summary>
@@ -534,6 +592,84 @@ namespace GmicSharp
                    format == PixelFormat.Format32bppArgb;
         }
 
+        private unsafe AnalyzeImageResult AnalyzeImage()
+        {
+            bool hasTransparency = false;
+            bool isGrayscale = true;
+
+            if (bitmap.PixelFormat == PixelFormat.Format32bppArgb)
+            {
+                BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                                                        ImageLockMode.ReadOnly,
+                                                        PixelFormat.Format32bppArgb);
+                try
+                {
+                    int width = bitmapData.Width;
+                    int height = bitmapData.Height;
+                    int stride = bitmapData.Stride;
+                    byte* scan0 = (byte*)bitmapData.Scan0;
+
+                    for (int y = 0; y < height; y++)
+                    {
+                        byte* src = scan0 + (y * stride);
+
+                        for (int x = 0; x < width; x++)
+                        {
+                            if (src[3] < 255)
+                            {
+                                hasTransparency = true;
+                            }
+
+                            if (!(src[0] == src[1] && src[1] == src[2]))
+                            {
+                                isGrayscale = false;
+                            }
+
+                            src += 4;
+                        }
+                    }
+                }
+                finally
+                {
+                    bitmap.UnlockBits(bitmapData);
+                }
+            }
+            else
+            {
+                BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                                                        ImageLockMode.ReadOnly,
+                                                        PixelFormat.Format24bppRgb);
+                try
+                {
+                    int width = bitmapData.Width;
+                    int height = bitmapData.Height;
+                    int stride = bitmapData.Stride;
+                    byte* scan0 = (byte*)bitmapData.Scan0;
+
+                    for (int y = 0; y < height; y++)
+                    {
+                        byte* src = scan0 + (y * stride);
+
+                        for (int x = 0; x < width; x++)
+                        {
+                            if (!(src[0] == src[1] && src[1] == src[2]))
+                            {
+                                isGrayscale = false;
+                            }
+
+                            src += 3;
+                        }
+                    }
+                }
+                finally
+                {
+                    bitmap.UnlockBits(bitmapData);
+                }
+            }
+
+            return new AnalyzeImageResult(hasTransparency, isGrayscale);
+        }
+
         /// <summary>
         /// Verifies that the class has not been disposed.
         /// </summary>
@@ -544,6 +680,19 @@ namespace GmicSharp
             {
                 ExceptionUtil.ThrowObjectDisposedException(nameof(GdiPlusGmicBitmap));
             }
+        }
+
+        private readonly struct AnalyzeImageResult
+        {
+            public AnalyzeImageResult(bool hasTransparency, bool isGrayscale)
+            {
+                HasTransparency = hasTransparency;
+                IsGrayscale = isGrayscale;
+            }
+
+            public bool HasTransparency { get; }
+
+            public bool IsGrayscale { get; }
         }
     }
 }
