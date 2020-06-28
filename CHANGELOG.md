@@ -9,23 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-  * Support for changing the host application name seen by G'MIC scripts through the `HostName` property in `Gmic<TGmicBitmap>`.
-  * `RunGmicTaskAsync` methods for [Task-based Asynchronous Pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap) support.
-  * A `GrayAlpha16` value to the `GmicPixelFormat` enumeration **(breaking change)**.
+* Support for changing the host application name seen by G'MIC scripts through the `HostName` property in `Gmic<TGmicBitmap>`.
+* `RunGmicTaskAsync` methods for [Task-based Asynchronous Pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap) support.
+* A `GrayAlpha16` value to the `GmicPixelFormat` enumeration **(breaking change)**.
 
 ### Changed
 
- * The `CustomResourcePath` property now supports paths non-ASCII characters.
- * Throw an exception if `AddInputImage` is called while G'MIC is running.
- * Throw an exception if `ClearInputImages` is called while G'MIC is running.
- * Updated `Gmic<TGmicBitmap>` to conform to the [Event-based Asynchronous Pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/event-based-asynchronous-pattern-overview) **(breaking change)**.
- * `RunGmic(string)` is now a synchronous call, use `RunGmicAsync` or `RunGmicTaskAsync` for asynchronous calls **(breaking change)**.
- * Raise the `RunGmicCompleted` and `RunGmicProgressChanged` events on the thread that called `RunGmicAsync`.
- * `GdiPlusGmicBitmap` now checks if the class has been disposed before using the bitmap.
- * Changed the native library names and deployment location to work with NuGet.
- * Custom `GmicBitmap` classes now have to perform their own conversion to/from the G'MIC image format **(breaking change)**.
- * Rename the `Gray` value in the `GmicPixelFormat` enumeration to `Gray8` **(breaking change)**.
- * Throw an exception if `GetEnumerator` is called after the `OutputImageCollection<TGmicBitmap>` class has been disposed.
+* The `CustomResourcePath` property now supports paths non-ASCII characters.
+* Throw an exception if `AddInputImage` is called while G'MIC is running.
+* Throw an exception if `ClearInputImages` is called while G'MIC is running.
+* Updated `Gmic<TGmicBitmap>` to conform to the [Event-based Asynchronous Pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/event-based-asynchronous-pattern-overview) **(breaking change)**.
+* `RunGmic(string)` is now a synchronous call, use `RunGmicAsync` or `RunGmicTaskAsync` for asynchronous calls **(breaking change)**.
+* Raise the `RunGmicCompleted` and `RunGmicProgressChanged` events on the thread that called `RunGmicAsync`.
+* `GdiPlusGmicBitmap` now checks if the class has been disposed before using the bitmap.
+* Changed the native library names and deployment location to work with NuGet.
+* Custom `GmicBitmap` classes now have to perform their own conversion to/from the G'MIC image format **(breaking change)**.
+* Rename the `Gray` value in the `GmicPixelFormat` enumeration to `Gray8` **(breaking change)**.
+* Throw an exception if `GetEnumerator` is called after the `OutputImageCollection<TGmicBitmap>` class has been disposed.
 
 ### Fixed
 
@@ -33,10 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
- * The `CustomUserFilePath` property in  `Gmic<TGmicBitmap>`.
- * The `RunGmic(string, CancellationToken)` method.
- * The `GmicBitmapLock` structure.
- * The `Bgr24`, `Bgr32`, `Bgra32` and `Rgb32` values from the `GmicPixelFormat` enumeration.
+* The `CustomUserFilePath` property in `Gmic<TGmicBitmap>`.
+* The `RunGmic(string, CancellationToken)` method.
+* The `GmicBitmapLock` structure.
+* The `Bgr24`, `Bgr32`, `Bgra32` and `Rgb32` values from the `GmicPixelFormat` enumeration.
 
 ## v0.6.0
 
