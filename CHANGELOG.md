@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * Changed the native library names and deployment location to work with NuGet.
  * Custom `GmicBitmap` classes now have to perform their own conversion to/from the G'MIC image format **(breaking change)**.
  * Rename the `Gray` value in the `GmicPixelFormat` enumeration to `Gray8` **(breaking change)**.
+ * Throw an exception if `GetEnumerator` is called after the `OutputImageCollection<TGmicBitmap>` class has been disposed.
 
 ### Fixed
 

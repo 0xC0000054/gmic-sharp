@@ -95,8 +95,10 @@ namespace GmicSharp
         /// <returns>
         /// An enumerator that can be used to iterate through the collection.
         /// </returns>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public IEnumerator<TGmicBitmap> GetEnumerator()
         {
+            VerifyNotDisposed();
             return images.GetEnumerator();
         }
 
@@ -106,8 +108,10 @@ namespace GmicSharp
         /// <returns>
         /// An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
         /// </returns>
+        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         IEnumerator IEnumerable.GetEnumerator()
         {
+            VerifyNotDisposed();
             return images.GetEnumerator();
         }
 
