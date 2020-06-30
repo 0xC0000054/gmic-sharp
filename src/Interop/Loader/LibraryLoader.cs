@@ -62,13 +62,14 @@ namespace GmicSharp.Interop
         private static IReadOnlyList<string> GetLibrarySearchPaths(string libraryName)
         {
             string assemblyDir = Path.GetDirectoryName(typeof(LibraryLoader).Assembly.Location);
+            string targetPlatformId = GetTargetPlatfromIdentifer();
 
             return new List<string>
             {
                 // This is the native dependency format used for NuGet packages.
-                Path.Combine(assemblyDir, "runtimes", GetTargetPlatfromIdentifer(), "native", libraryName),
+                Path.Combine(assemblyDir, "runtimes", targetPlatformId, "native", libraryName),
                 // An alternative path that can be used for local deployments.
-                Path.Combine(assemblyDir, "GmicSharpNative", Environment.Is64BitProcess ? "x64" : "x86", libraryName)
+                Path.Combine(assemblyDir, "GmicSharpNative", targetPlatformId, libraryName)
             };
         }
 
