@@ -51,7 +51,7 @@ namespace GmicSharp.Interop
                 throw new InvalidOperationException($"Must call LoadNativeLibrary() before this method.");
             }
 
-            GmicNativeMethods.GetLibraryVersion(out int nativeLibMajorVersion, out int nativeLibMinorVersion, out _);
+            GmicNativeMethods.Instance.GetLibraryVersion(out int nativeLibMajorVersion, out int nativeLibMinorVersion, out _);
 
             Version managedLibVersion = AssemblyVersionInfo.LibraryVersion;
 
@@ -112,6 +112,8 @@ namespace GmicSharp.Interop
             {
                 throw new GmicException($"The gmic-sharp native library was not found. SearchPaths={ loader.LibrarySearchPaths.Aggregate((a, b) => a + ";" + b) }");
             }
+
+            GmicNativeMethods.Initialize(nativeLibraryHandle, loader);
         }
     }
 }

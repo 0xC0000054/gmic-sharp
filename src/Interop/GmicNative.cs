@@ -19,21 +19,21 @@ namespace GmicSharp.Interop
     {
         internal static SafeGmicImageList CreateGmicImageList()
         {
-            return GmicNativeMethods.GmicImageListCreate();
+            return GmicNativeMethods.Instance.GmicImageListCreate();
         }
 
         internal static void GmicImageListClear(SafeGmicImageList list)
         {
             ValidateGmicImageList(list);
 
-            GmicNativeMethods.GmicImageListClear(list);
+            GmicNativeMethods.Instance.GmicImageListClear(list);
         }
 
         internal static uint GmicImageListGetCount(SafeGmicImageList list)
         {
             ValidateGmicImageList(list);
 
-            return GmicNativeMethods.GmicImageListGetCount(list);
+            return GmicNativeMethods.Instance.GmicImageListGetCount(list);
         }
 
         internal static void GmicImageListGetImageData(SafeGmicImageList list, uint index, out GmicImageListImageData data)
@@ -42,7 +42,7 @@ namespace GmicSharp.Interop
 
             data = new GmicImageListImageData();
 
-            GmicStatus status = GmicNativeMethods.GmicImageListGetImageData(list, index, data);
+            GmicStatus status = GmicNativeMethods.Instance.GmicImageListGetImageData(list, index, data);
 
             if (status != GmicStatus.Ok)
             {
@@ -63,7 +63,7 @@ namespace GmicSharp.Interop
             pixelData = new GmicImageListPixelData();
             nativeImageFormat = ConvertToNativeImageFormat(format);
 
-            GmicStatus status = GmicNativeMethods.GmicImageListAdd(list,
+            GmicStatus status = GmicNativeMethods.Instance.GmicImageListAdd(list,
                                                                    width,
                                                                    height,
                                                                    nativeImageFormat,
@@ -87,7 +87,7 @@ namespace GmicSharp.Interop
 
             GmicErrorInfo errorInfo = new GmicErrorInfo();
 
-            GmicStatus status = GmicNativeMethods.RunGmic(list, options, errorInfo);
+            GmicStatus status = GmicNativeMethods.Instance.RunGmic(list, options, errorInfo);
 
             if (status != GmicStatus.Ok)
             {

@@ -21,7 +21,7 @@ namespace GmicSharp.Interop
 
         protected override bool ReleaseHandle()
         {
-            GmicNativeMethods.GmicImageListDestroy(handle);
+            GmicNativeMethods.Instance.GmicImageListDestroy(handle);
             return true;
         }
     }

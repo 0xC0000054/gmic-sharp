@@ -14,43 +14,148 @@ using System.Runtime.InteropServices;
 
 namespace GmicSharp.Interop
 {
-    internal static class GmicNativeMethods
+    internal sealed class GmicNativeMethods
     {
-        private const string DllName = LibraryLoader.DllName;
+        private readonly GetLibraryVersionDelegate getLibraryVersion;
+        private readonly GmicImageListCreateDelegate gmicImageListCreate;
+        private readonly GmicImageListDestroyDelegate gmicImageListDestroy;
+        private readonly GmicImageListClearDelegate gmicImageListClear;
+        private readonly GmicImageListGetCountDelegate gmicImageListGetCount;
+        private readonly GmicImageListGetImageDataDelegate gmicImageListGetImageData;
+        private readonly GmicImageListAddDelegate gmicImageListAdd;
+        private readonly RunGmicDelegate runGmic;
+
+        private static GmicNativeMethods instance;
+
         private const CallingConvention DllCallConv = CallingConvention.Cdecl;
 
-        [DllImport(DllName, CallingConvention = DllCallConv)]
-        internal static extern void GetLibraryVersion(out int major, out int minor, out int patch);
+        #region Delegates
+        [UnmanagedFunctionPointer(DllCallConv)]
+        private delegate void GetLibraryVersionDelegate(out int major, out int minor, out int patch);
+
+        [UnmanagedFunctionPointer(DllCallConv)]
+        private delegate SafeGmicImageList GmicImageListCreateDelegate();
+
+        [UnmanagedFunctionPointer(DllCallConv)]
+        private delegate void GmicImageListDestroyDelegate(IntPtr handle);
+
+        [UnmanagedFunctionPointer(DllCallConv)]
+        private delegate void GmicImageListClearDelegate(SafeGmicImageList list);
+
+        [UnmanagedFunctionPointer(DllCallConv)]
+        private delegate uint GmicImageListGetCountDelegate(SafeGmicImageList list);
+
+        [UnmanagedFunctionPointer(DllCallConv)]
+        private delegate GmicStatus GmicImageListGetImageDataDelegate(SafeGmicImageList list,
+                                                                      uint index,
+                                                                      [In, Out] GmicImageListImageData info);
+
+        [UnmanagedFunctionPointer(DllCallConv)]
+        private delegate GmicStatus GmicImageListAddDelegate(SafeGmicImageList list,
+                                                             uint width,
+                                                             uint height,
+                                                             NativeImageFormat format,
+                                                             [MarshalAs(UnmanagedType.LPUTF8Str)] string name,
+                                                             [In, Out] GmicImageListPixelData pixelData);
+
+        [UnmanagedFunctionPointer(DllCallConv)]
+        private delegate GmicStatus RunGmicDelegate(SafeGmicImageList list,
+                                                    GmicOptions options,
+                                                    [In, Out] GmicErrorInfo errorInfo);
+        #endregion
+
+        private GmicNativeMethods(IntPtr libraryHandle, LibraryLoader loader)
+        {
+            getLibraryVersion = loader.GetExport<GetLibraryVersionDelegate>(libraryHandle, "GetLibraryVersion");
+            gmicImageListCreate = loader.GetExport<GmicImageListCreateDelegate>(libraryHandle, "GmicImageListCreate");
+            gmicImageListDestroy = loader.GetExport<GmicImageListDestroyDelegate>(libraryHandle, "GmicImageListDestroy");
+            gmicImageListClear = loader.GetExport<GmicImageListClearDelegate>(libraryHandle, "GmicImageListClear");
+            gmicImageListGetCount = loader.GetExport<GmicImageListGetCountDelegate>(libraryHandle, "GmicImageListGetCount");
+            gmicImageListGetImageData = loader.GetExport<GmicImageListGetImageDataDelegate>(libraryHandle, "GmicImageListGetImageData");
+            gmicImageListAdd = loader.GetExport<GmicImageListAddDelegate>(libraryHandle, "GmicImageListAdd");
+            runGmic = loader.GetExport<RunGmicDelegate>(libraryHandle, "RunGmic");
+        }
 
 
-        [DllImport(DllName, CallingConvention = DllCallConv)]
-        internal static extern SafeGmicImageList GmicImageListCreate();
+        public static GmicNativeMethods Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    ExceptionUtil.ThrowInvalidOperationException("Must call Initialize() before using this property.");
+                }
 
-        [DllImport(DllName, CallingConvention = DllCallConv)]
-        internal static extern void GmicImageListDestroy(IntPtr handle);
+                return instance;
+            }
+        }
 
-        [DllImport(DllName, CallingConvention = DllCallConv)]
-        internal static extern uint GmicImageListClear(SafeGmicImageList list);
+        public static void Initialize(IntPtr libraryHandle, LibraryLoader loader)
+        {
+            if (libraryHandle == IntPtr.Zero)
+            {
+                ExceptionUtil.ThrowArgumentNullException(nameof(libraryHandle));
+            }
 
-        [DllImport(DllName, CallingConvention = DllCallConv)]
-        internal static extern uint GmicImageListGetCount(SafeGmicImageList list);
+            if (loader is null)
+            {
+                ExceptionUtil.ThrowArgumentNullException(nameof(loader));
+            }
 
-        [DllImport(DllName, CallingConvention = DllCallConv)]
-        internal static extern GmicStatus GmicImageListGetImageData(SafeGmicImageList list,
-                                                                    uint index,
-                                                                    [In, Out] GmicImageListImageData info);
+            if (instance == null)
+            {
+                instance = new GmicNativeMethods(libraryHandle, loader);
+            }
+        }
 
-        [DllImport(DllName, CallingConvention = DllCallConv)]
-        internal static extern GmicStatus GmicImageListAdd(SafeGmicImageList list,
-                                                           uint width,
-                                                           uint height,
-                                                           NativeImageFormat format,
-                                                           [MarshalAs(UnmanagedType.LPUTF8Str)] string name,
-                                                           [In, Out] GmicImageListPixelData pixelData);
 
-        [DllImport(DllName, CallingConvention = DllCallConv)]
-        internal static extern GmicStatus RunGmic(SafeGmicImageList list,
-                                                  GmicOptions options,
-                                                  [In, Out] GmicErrorInfo errorInfo);
+        internal void GetLibraryVersion(out int major, out int minor, out int patch)
+        {
+            getLibraryVersion(out major, out minor, out patch);
+        }
+
+        internal SafeGmicImageList GmicImageListCreate()
+        {
+            return gmicImageListCreate();
+        }
+
+        internal void GmicImageListDestroy(IntPtr handle)
+        {
+            gmicImageListDestroy(handle);
+        }
+
+        internal void GmicImageListClear(SafeGmicImageList list)
+        {
+            gmicImageListClear(list);
+        }
+
+        internal uint GmicImageListGetCount(SafeGmicImageList list)
+        {
+            return gmicImageListGetCount(list);
+        }
+
+        internal GmicStatus GmicImageListGetImageData(SafeGmicImageList list,
+                                                      uint index,
+                                                      GmicImageListImageData info)
+        {
+            return gmicImageListGetImageData(list, index, info);
+        }
+
+        internal GmicStatus GmicImageListAdd(SafeGmicImageList list,
+                                             uint width,
+                                             uint height,
+                                             NativeImageFormat format,
+                                             string name,
+                                             GmicImageListPixelData pixelData)
+        {
+            return gmicImageListAdd(list, width, height, format, name, pixelData);
+        }
+
+        internal GmicStatus RunGmic(SafeGmicImageList list,
+                                    GmicOptions options,
+                                    GmicErrorInfo errorInfo)
+        {
+            return runGmic(list, options, errorInfo);
+        }
     }
 }

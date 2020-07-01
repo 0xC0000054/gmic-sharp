@@ -12,11 +12,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace GmicSharp.Interop
 {
     internal abstract class LibraryLoader
     {
+        private readonly string libraryName;
+
         internal const string DllName = "libGmicSharpNative";
 
         protected LibraryLoader(string dllFileExtension)
@@ -26,11 +29,23 @@ namespace GmicSharp.Interop
                 ExceptionUtil.ThrowArgumentNullException(nameof(dllFileExtension));
             }
 
-            string libraryName = DllName + dllFileExtension;
+            libraryName = DllName + dllFileExtension;
             LibrarySearchPaths = GetLibrarySearchPaths(libraryName);
         }
 
         public IReadOnlyList<string> LibrarySearchPaths { get; }
+
+        public TDelegate GetExport<TDelegate>(IntPtr libraryHandle, string name) where TDelegate : Delegate
+        {
+            IntPtr symbol = ResolveExportedSymbol(libraryHandle, name);
+
+            if (symbol == IntPtr.Zero)
+            {
+                throw new GmicException($"The entrypoint '{ name }' was not found in '{ libraryName }'");
+            }
+
+            return Marshal.GetDelegateForFunctionPointer<TDelegate>(symbol);
+        }
 
         public IntPtr LoadNativeLibrary()
         {
@@ -58,6 +73,8 @@ namespace GmicSharp.Interop
         }
 
         protected abstract LoadLibraryResult LoadLibrary(string path);
+
+        protected abstract IntPtr ResolveExportedSymbol(IntPtr libraryHandle, string name);
 
         private static IReadOnlyList<string> GetLibrarySearchPaths(string libraryName)
         {
