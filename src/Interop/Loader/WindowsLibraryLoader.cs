@@ -97,7 +97,8 @@ namespace GmicSharp.Interop
                 }
                 else
                 {
-                    oldMode = NativeMethods.SetErrorMode(newMode);
+                    oldMode = NativeMethods.SetErrorMode(0);
+                    NativeMethods.SetErrorMode(oldMode | newMode);
                 }
 
                 return oldMode;
