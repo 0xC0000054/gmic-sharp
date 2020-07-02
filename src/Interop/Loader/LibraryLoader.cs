@@ -37,6 +37,16 @@ namespace GmicSharp.Interop
 
         public TDelegate GetExport<TDelegate>(IntPtr libraryHandle, string name) where TDelegate : Delegate
         {
+            if (libraryHandle == IntPtr.Zero)
+            {
+                ExceptionUtil.ThrowArgumentNullException(nameof(libraryHandle));
+            }
+
+            if (name is null)
+            {
+                ExceptionUtil.ThrowArgumentNullException(nameof(name));
+            }
+
             IntPtr symbol = ResolveExportedSymbol(libraryHandle, name);
 
             if (symbol == IntPtr.Zero)
