@@ -48,7 +48,7 @@ namespace GmicSharp.Interop
         {
             if (nativeLibraryHandle == IntPtr.Zero)
             {
-                throw new InvalidOperationException($"Must call LoadNativeLibrary() before this method.");
+                throw new InvalidOperationException("Must call LoadNativeLibrary() before this method.");
             }
 
             GmicNativeMethods.Instance.GetLibraryVersion(out int nativeLibMajorVersion, out int nativeLibMinorVersion, out _);
