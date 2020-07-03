@@ -20,7 +20,7 @@ namespace GmicSharp.Interop
     {
         private readonly string libraryName;
 
-        internal const string DllName = "libGmicSharpNative";
+        private const string DllName = "libGmicSharpNative";
 
         protected LibraryLoader(string dllFileExtension)
         {
