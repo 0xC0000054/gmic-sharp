@@ -93,10 +93,10 @@ namespace GmicSharp.Interop
 
             return new List<string>
             {
+                // The main path used for local deployments.
+                Path.Combine(assemblyDir, "GmicSharpNative", targetPlatformId, libraryName),
                 // This is the native dependency format used for NuGet packages.
-                Path.Combine(assemblyDir, "runtimes", targetPlatformId, "native", libraryName),
-                // An alternative path that can be used for local deployments.
-                Path.Combine(assemblyDir, "GmicSharpNative", targetPlatformId, libraryName)
+                Path.Combine(assemblyDir, "runtimes", targetPlatformId, "native", libraryName)
             };
         }
 
