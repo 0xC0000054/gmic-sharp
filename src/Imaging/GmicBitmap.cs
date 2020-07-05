@@ -76,7 +76,7 @@ namespace GmicSharp
         /// <param name="pixelData">The pixel data.</param>
         /// <param name="planeStride">The plane stride.</param>
         /// <exception cref="InvalidEnumArgumentException"><paramref name="outputImageFormat"/> is not valid.</exception>
-        internal unsafe void CopyFromGmicBitmap(NativeImageFormat outputImageFormat, GmicImageListPixelData pixelData, int planeStride)
+        internal unsafe void CopyFromGmicImage(NativeImageFormat outputImageFormat, GmicImageListPixelData pixelData, int planeStride)
         {
             switch (outputImageFormat)
             {
@@ -104,7 +104,7 @@ namespace GmicSharp
         /// <param name="pixelData">The pixel data.</param>
         /// <param name="planeStride">The plane stride.</param>
         /// <exception cref="InvalidEnumArgumentException"><paramref name="gmicImageFormat"/> is not valid.</exception>
-        internal unsafe void CopyToGmicBitmap(NativeImageFormat gmicImageFormat, GmicImageListPixelData pixelData, int planeStride)
+        internal unsafe void CopyToGmicImage(NativeImageFormat gmicImageFormat, GmicImageListPixelData pixelData, int planeStride)
         {
             switch (gmicImageFormat)
             {

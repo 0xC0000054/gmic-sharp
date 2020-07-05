@@ -124,7 +124,7 @@ namespace GmicSharp
             GmicNative.GmicImageListAdd(nativeImageList, width, height, format, name, out pixelData, out nativeImageFormat);
 
             // Copy the pixel data to the native image.
-            bitmap.CopyToGmicBitmap(nativeImageFormat, pixelData, planeStride);
+            bitmap.CopyToGmicImage(nativeImageFormat, pixelData, planeStride);
         }
 
         /// <summary>

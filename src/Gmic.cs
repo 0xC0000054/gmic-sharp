@@ -506,7 +506,7 @@ namespace GmicSharp
 
                 TGmicBitmap bitmap = outputImageFactory.Create(width, height, gmicPixelFormat);
 
-                bitmap.CopyFromGmicBitmap(imageData.format, imageData.pixels, planeStride);
+                bitmap.CopyFromGmicImage(imageData.format, imageData.pixels, planeStride);
 
                 gmicBitmaps.Add(bitmap);
             }
