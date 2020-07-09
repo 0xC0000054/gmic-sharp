@@ -102,23 +102,45 @@ namespace GmicSharp.Interop
 
         private static string GetTargetPlatfromIdentifer()
         {
+            string platformName;
+            string processorArchitecture;
+
             if (PlatformHelper.IsWindows)
             {
-                return Environment.Is64BitProcess ? "win-x64" : "win-x86";
+                platformName = "win";
             }
             else if (PlatformHelper.IsLinux)
             {
-                return Environment.Is64BitProcess ? "linux-x64" : "linux-x86";
+                platformName = "linux";
             }
             else if (PlatformHelper.IsMac)
             {
-                // .NET Core does not support the x86 versions of macOS.
-                return "osx-x64";
+                platformName = "osx";
             }
             else
             {
                 throw new PlatformNotSupportedException();
             }
+
+            switch (RuntimeInformation.ProcessArchitecture)
+            {
+                case Architecture.X86:
+                    processorArchitecture = "x86";
+                    break;
+                case Architecture.X64:
+                    processorArchitecture = "x64";
+                    break;
+                case Architecture.Arm:
+                    processorArchitecture = "arm";
+                    break;
+                case Architecture.Arm64:
+                    processorArchitecture = "arm64";
+                    break;
+                default:
+                    throw new PlatformNotSupportedException($"Unsupported process architecture: { RuntimeInformation.ProcessArchitecture }.");
+            }
+
+            return platformName + "-" + processorArchitecture;
         }
 
         protected readonly struct LoadLibraryResult
