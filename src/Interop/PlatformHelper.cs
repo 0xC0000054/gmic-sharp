@@ -27,29 +27,17 @@ namespace GmicSharp.Interop
 
         private static bool IsRunningOnLinux()
         {
-#if NET47
-            return false;
-#else
             return System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
-#endif
         }
 
         private static bool IsRunningOnOSX()
         {
-#if NET47
-            return false;
-#else
             return System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
-#endif
         }
 
         private static bool IsRunningOnWindows()
         {
-#if NET47
-            return true;
-#else
             return System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
-#endif
         }
     }
 }
