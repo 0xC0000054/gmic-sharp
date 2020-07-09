@@ -19,7 +19,7 @@ namespace GenerateAssemblyVersionInfo
         // https://semver.org/spec/v2.0.0.html.
 
         public const int MajorVersion = 0;
-        public const int MinorVersion = 6;
+        public const int MinorVersion = 7;
         public const int PatchVersion = 0;
     }
 }

@@ -11,12 +11,10 @@
 
 namespace GmicSharp.Interop
 {
-#if NETCOREAPP3_1
-    internal sealed class MacLibraryLoader : NetCoreNativeLibraryLoader
+    internal sealed class MacLibraryLoader : PosixLibraryLoader
     {
         public MacLibraryLoader() : base(".dylib")
         {
         }
     }
-#endif
 }

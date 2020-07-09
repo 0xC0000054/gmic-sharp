@@ -11,12 +11,10 @@
 
 namespace GmicSharp.Interop
 {
-#if NETCOREAPP3_1
-    internal sealed class LinuxLibraryLoader : NetCoreNativeLibraryLoader
+    internal sealed class LinuxLibraryLoader : PosixLibraryLoader
     {
         public LinuxLibraryLoader() : base(".so")
         {
         }
     }
-#endif
 }

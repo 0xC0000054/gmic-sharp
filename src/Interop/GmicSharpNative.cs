@@ -101,7 +101,6 @@ namespace GmicSharp.Interop
             {
                 loader = new WindowsLibraryLoader();
             }
-#if NETCOREAPP3_1
             else if (PlatformHelper.IsLinux)
             {
                 loader = new LinuxLibraryLoader();
@@ -110,7 +109,6 @@ namespace GmicSharp.Interop
             {
                 loader = new MacLibraryLoader();
             }
-#endif
             else
             {
                 throw new GmicException("The gmic-sharp native library is not supported on the current platform.");
