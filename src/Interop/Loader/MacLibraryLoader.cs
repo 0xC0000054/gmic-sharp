@@ -11,7 +11,7 @@
 
 namespace GmicSharp.Interop
 {
-    internal sealed class MacLibraryLoader : PosixLibraryLoader
+    internal sealed class MacLibraryLoader : UnixLibraryLoader
     {
         public MacLibraryLoader() : base(".dylib")
         {

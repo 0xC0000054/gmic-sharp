@@ -11,7 +11,7 @@
 
 namespace GmicSharp.Interop
 {
-    internal sealed class LinuxLibraryLoader : PosixLibraryLoader
+    internal sealed class LinuxLibraryLoader : UnixLibraryLoader
     {
         public LinuxLibraryLoader() : base(".so")
         {

@@ -15,9 +15,9 @@ using System.Runtime.InteropServices;
 
 namespace GmicSharp.Interop
 {
-    internal abstract class PosixLibraryLoader : LibraryLoader
+    internal abstract class UnixLibraryLoader : LibraryLoader
     {
-        protected PosixLibraryLoader(string dllFileExtension) : base(dllFileExtension)
+        protected UnixLibraryLoader(string dllFileExtension) : base(dllFileExtension)
         {
         }
 
