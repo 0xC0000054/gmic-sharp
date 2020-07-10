@@ -61,10 +61,10 @@ namespace GmicSharp.Interop
             [DllImport("kernel32.dll", EntryPoint = "GetProcAddress")]
             public static extern IntPtr GetProcAddress([In()] IntPtr hModule, [In(), MarshalAs(UnmanagedType.LPStr)] string lpProcName);
 
-            [DllImport("kernel32.dll", ExactSpelling = true)]
+            [DllImport("kernel32.dll", EntryPoint = "SetErrorMode")]
             public static extern uint SetErrorMode([In()] uint uMode);
 
-            [DllImport("kernel32.dll", ExactSpelling = true)]
+            [DllImport("kernel32.dll", EntryPoint = "SetThreadErrorMode")]
             [return: MarshalAs(UnmanagedType.Bool)]
             public static extern bool SetThreadErrorMode([In()] uint dwNewMode, [Out()] out uint lpOldMode);
         }
