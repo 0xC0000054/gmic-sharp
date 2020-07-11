@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.7.0](https://github.com/0xC0000054/gmic-sharp/compare/v0.6.0...v0.7.0) - 2020-07-10
+
 ### Added
 
 * Support for changing the host application name seen by G'MIC scripts through the `HostName` property in `Gmic<TGmicBitmap>`.
