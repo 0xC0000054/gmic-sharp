@@ -109,6 +109,10 @@ namespace GmicSharp.Interop
             {
                 loader = new MacLibraryLoader();
             }
+            else if (PlatformHelper.IsBsd)
+            {
+                loader = new BsdLibraryLoader();
+            }
             else
             {
                 throw new GmicException("The gmic-sharp native library is not supported on the current platform.");

@@ -21,6 +21,14 @@ namespace GmicSharp.Interop
         {
         }
 
+        protected enum NativeMethodLocation
+        {
+            Libdl = 0,
+            Libc
+        }
+
+        protected virtual NativeMethodLocation LocationOfNativeMethods => NativeMethodLocation.Libdl;
+
         protected sealed override LoadLibraryResult LoadLibrary(string path)
         {
             if (NativeLibraryHelper.IsSupported)
@@ -29,7 +37,7 @@ namespace GmicSharp.Interop
             }
             else
             {
-                IntPtr handle = NativeMethods.LoadLibary(path, NativeConstants.RTLD_NOW);
+                IntPtr handle = UnixLoadLibrary(path, NativeConstants.RTLD_NOW);
 
                 if (handle != IntPtr.Zero)
                 {
@@ -37,7 +45,7 @@ namespace GmicSharp.Interop
                 }
                 else
                 {
-                    string message = Marshal.PtrToStringAnsi(NativeMethods.GetErrorMessage()) ?? string.Empty;
+                    string message = Marshal.PtrToStringAnsi(UnixGetErrorMessage()) ?? string.Empty;
 
                     return new LoadLibraryResult(new ExternalException(message));
                 }
@@ -52,7 +60,46 @@ namespace GmicSharp.Interop
             }
             else
             {
-                return NativeMethods.GetExportedSymbol(libraryHandle, name);
+                return UnixGetExportedSymbol(libraryHandle, name);
+            }
+        }
+
+        private IntPtr UnixLoadLibrary(string fileName, int flags)
+        {
+            switch (LocationOfNativeMethods)
+            {
+                case NativeMethodLocation.Libdl:
+                    return NativeMethods.LibDl.LoadLibrary(fileName, flags);
+                case NativeMethodLocation.Libc:
+                    return NativeMethods.LibC.LoadLibrary(fileName, flags);
+                default:
+                    throw new InvalidOperationException($"Unsupported { nameof(NativeMethodLocation) } value: { LocationOfNativeMethods }.");
+            }
+        }
+
+        private IntPtr UnixGetErrorMessage()
+        {
+            switch (LocationOfNativeMethods)
+            {
+                case NativeMethodLocation.Libdl:
+                    return NativeMethods.LibDl.GetErrorMessage();
+                case NativeMethodLocation.Libc:
+                    return NativeMethods.LibC.GetErrorMessage();
+                default:
+                    throw new InvalidOperationException($"Unsupported { nameof(NativeMethodLocation) } value: { LocationOfNativeMethods }.");
+            }
+        }
+
+        private IntPtr UnixGetExportedSymbol(IntPtr handle, string symbol)
+        {
+            switch (LocationOfNativeMethods)
+            {
+                case NativeMethodLocation.Libdl:
+                    return NativeMethods.LibDl.GetExportedSymbol(handle, symbol);
+                case NativeMethodLocation.Libc:
+                    return NativeMethods.LibC.GetExportedSymbol(handle, symbol);
+                default:
+                    throw new InvalidOperationException($"Unsupported { nameof(NativeMethodLocation) } value: { LocationOfNativeMethods }.");
             }
         }
 
@@ -63,14 +110,31 @@ namespace GmicSharp.Interop
 
         private static class NativeMethods
         {
-            [DllImport("libdl", EntryPoint = "dlopen")]
-            internal static extern IntPtr LoadLibary([MarshalAs(UnmanagedType.LPStr)] string fileName, int flags);
+            internal static class LibDl
+            {
 
-            [DllImport("libdl", EntryPoint = "dlerror")]
-            internal static extern IntPtr GetErrorMessage();
+                [DllImport("libdl", EntryPoint = "dlopen")]
+                internal static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)] string fileName, int flags);
 
-            [DllImport("libdl", EntryPoint = "dlsym")]
-            internal static extern IntPtr GetExportedSymbol(IntPtr handle, [MarshalAs(UnmanagedType.LPStr)] string symbol);
+                [DllImport("libdl", EntryPoint = "dlerror")]
+                internal static extern IntPtr GetErrorMessage();
+
+                [DllImport("libdl", EntryPoint = "dlsym")]
+                internal static extern IntPtr GetExportedSymbol(IntPtr handle, [MarshalAs(UnmanagedType.LPStr)] string symbol);
+            }
+
+            internal static class LibC
+            {
+
+                [DllImport("libc", EntryPoint = "dlopen")]
+                internal static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)] string fileName, int flags);
+
+                [DllImport("libc", EntryPoint = "dlerror")]
+                internal static extern IntPtr GetErrorMessage();
+
+                [DllImport("libc", EntryPoint = "dlsym")]
+                internal static extern IntPtr GetExportedSymbol(IntPtr handle, [MarshalAs(UnmanagedType.LPStr)] string symbol);
+            }
         }
 
         private static class NativeLibraryHelper

@@ -11,10 +11,16 @@
 
 namespace GmicSharp.Interop
 {
-    internal sealed class MacLibraryLoader : BsdLibraryLoader
+    internal class BsdLibraryLoader : UnixLibraryLoader
     {
-        public MacLibraryLoader() : base(".dylib")
+        public BsdLibraryLoader() : base(".so")
         {
         }
+
+        protected BsdLibraryLoader(string dllFileExtension) : base(dllFileExtension)
+        {
+        }
+
+        protected sealed override NativeMethodLocation LocationOfNativeMethods => NativeMethodLocation.Libc;
     }
 }

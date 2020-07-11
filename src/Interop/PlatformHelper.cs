@@ -15,15 +15,23 @@ namespace GmicSharp.Interop
 {
     internal static class PlatformHelper
     {
+        private static readonly Lazy<bool> isBsd = new Lazy<bool>(IsRunningOnBsd);
         private static readonly Lazy<bool> isLinux = new Lazy<bool>(IsRunningOnLinux);
         private static readonly Lazy<bool> isMac = new Lazy<bool>(IsRunningOnOSX);
         private static readonly Lazy<bool> isWindows = new Lazy<bool>(IsRunningOnWindows);
+
+        public static bool IsBsd => isBsd.Value;
 
         public static bool IsLinux => isLinux.Value;
 
         public static bool IsMac => isMac.Value;
 
         public static bool IsWindows => isWindows.Value;
+
+        private static bool IsRunningOnBsd()
+        {
+            return System.Runtime.InteropServices.RuntimeInformation.OSDescription.Contains("BSD", StringComparison.OrdinalIgnoreCase);
+        }
 
         private static bool IsRunningOnLinux()
         {

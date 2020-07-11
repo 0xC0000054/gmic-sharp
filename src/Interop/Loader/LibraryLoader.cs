@@ -117,6 +117,10 @@ namespace GmicSharp.Interop
             {
                 platformName = "osx";
             }
+            else if (PlatformHelper.IsBsd)
+            {
+                platformName = "unix";
+            }
             else
             {
                 throw new PlatformNotSupportedException();
