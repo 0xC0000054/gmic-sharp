@@ -216,6 +216,7 @@ namespace GmicSharp
         /// Executes G'MIC with the specified command.
         /// </summary>
         /// <param name="command">The command.</param>
+        /// <returns>An <see cref="OutputImageCollection{TGmicBitmap}"/> containing the processed images.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="command"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="command"/> is a empty or contains only white space.</exception>
         /// <exception cref="GmicException">An error occurred when running G'MIC.</exception>
@@ -254,7 +255,6 @@ namespace GmicSharp
         /// Executes G'MIC with the specified command.
         /// </summary>
         /// <param name="command">The command.</param>
-        /// <returns>An <see cref="OutputImageCollection{TGmicBitmap}"/> containing the processed images.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="command"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="command"/> is a empty or contains only white space.</exception>
         /// <exception cref="GmicException">An error occurred when running G'MIC.</exception>

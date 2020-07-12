@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+The return value documentation for `RunGmic`.
+
 ## [v0.7.0](https://github.com/0xC0000054/gmic-sharp/compare/v0.6.0...v0.7.0) - 2020-07-10
 
 ### Added
