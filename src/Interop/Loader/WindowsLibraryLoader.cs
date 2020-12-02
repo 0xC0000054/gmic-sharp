@@ -25,22 +25,25 @@ namespace GmicSharp.Interop
 
         protected override LoadLibraryResult LoadLibrary(string path)
         {
-            IntPtr handle = IntPtr.Zero;
+            LoadLibraryResult result;
 
             // Disable the error dialog that LoadLibrary shows if it cannot find a DLL dependency.
             using (new DisableLoadLibraryErrorDialog())
             {
-                handle = NativeMethods.LoadLibraryW(path);
+                IntPtr handle = NativeMethods.LoadLibraryW(path);
+
+                if (handle != IntPtr.Zero)
+                {
+                    result = new LoadLibraryResult(handle);
+                }
+                else
+                {
+                    int lastError = Marshal.GetLastWin32Error();
+                    result = new LoadLibraryResult(new Win32Exception(lastError));
+                }
             }
 
-            if (handle != IntPtr.Zero)
-            {
-                return new LoadLibraryResult(handle);
-            }
-            else
-            {
-                return new LoadLibraryResult(new Win32Exception(Marshal.GetLastWin32Error()));
-            }
+            return result;
         }
 
         protected override IntPtr ResolveExportedSymbol(IntPtr libraryHandle, string name)
