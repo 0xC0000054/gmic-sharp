@@ -29,3 +29,15 @@ The gmic-sharp native libraries (libGmicSharpNative*) are dual-licensed under th
 Pick the one you want to use.
 
 This was done to match the licenses used by [libgmic](https://github.com/dtschump/gmic).
+
+# Source code
+
+## Prerequisites
+
+* Visual Studio 2019
+* [Sandcastle Help File Builder](https://github.com/EWSoftware/SHFB) is required to build the documentation	
+
+## Building the plugin
+
+* Open the solution
+* Build the solution
