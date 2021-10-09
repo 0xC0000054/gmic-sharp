@@ -95,28 +95,7 @@ namespace GmicSharp.Interop
                 return;
             }
 
-            LibraryLoader loader;
-
-            if (PlatformHelper.IsWindows)
-            {
-                loader = new WindowsLibraryLoader();
-            }
-            else if (PlatformHelper.IsLinux)
-            {
-                loader = new LinuxLibraryLoader();
-            }
-            else if (PlatformHelper.IsMac)
-            {
-                loader = new MacLibraryLoader();
-            }
-            else if (PlatformHelper.IsBsd)
-            {
-                loader = new BsdLibraryLoader();
-            }
-            else
-            {
-                throw new GmicException("The gmic-sharp native library is not supported on the current platform.");
-            }
+            LibraryLoader loader = new LibraryLoader();
 
             nativeLibraryHandle = loader.LoadNativeLibrary();
 

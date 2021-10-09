@@ -15,12 +15,8 @@ using System.Runtime.InteropServices;
 
 namespace GmicSharp.Interop
 {
-    internal abstract class UnixLibraryLoader : LibraryLoader
+    internal abstract class UnixNativeLibrary : PlatformNativeLibrary
     {
-        protected UnixLibraryLoader(string dllFileExtension) : base(dllFileExtension)
-        {
-        }
-
         protected enum NativeMethodLocation
         {
             Libdl = 0,
@@ -29,7 +25,7 @@ namespace GmicSharp.Interop
 
         protected virtual NativeMethodLocation LocationOfNativeMethods => NativeMethodLocation.Libdl;
 
-        protected sealed override LoadLibraryResult LoadLibrary(string path)
+        internal sealed override LoadLibraryResult Load(string path)
         {
             if (NativeLibraryHelper.IsSupported)
             {
@@ -52,7 +48,7 @@ namespace GmicSharp.Interop
             }
         }
 
-        protected sealed override IntPtr ResolveExportedSymbol(IntPtr libraryHandle, string name)
+        internal sealed override IntPtr GetExport(IntPtr libraryHandle, string name)
         {
             if (NativeLibraryHelper.IsSupported)
             {

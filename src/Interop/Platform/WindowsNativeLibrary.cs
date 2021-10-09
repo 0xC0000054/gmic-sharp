@@ -15,15 +15,13 @@ using System.Runtime.InteropServices;
 
 namespace GmicSharp.Interop
 {
-    internal sealed class WindowsLibraryLoader : LibraryLoader
+    internal sealed class WindowsNativeLibrary : PlatformNativeLibrary
     {
-        private const string DllFileExtension = ".dll";
-
-        public WindowsLibraryLoader() : base(DllFileExtension)
+        public WindowsNativeLibrary()
         {
         }
 
-        protected override LoadLibraryResult LoadLibrary(string path)
+        internal override LoadLibraryResult Load(string path)
         {
             LoadLibraryResult result;
 
@@ -46,7 +44,7 @@ namespace GmicSharp.Interop
             return result;
         }
 
-        protected override IntPtr ResolveExportedSymbol(IntPtr libraryHandle, string name)
+        internal override IntPtr GetExport(IntPtr libraryHandle, string name)
         {
             return NativeMethods.GetProcAddress(libraryHandle, name);
         }

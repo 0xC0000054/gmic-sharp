@@ -11,9 +11,9 @@
 
 namespace GmicSharp.Interop
 {
-    internal sealed class MacLibraryLoader : BsdLibraryLoader
+    internal sealed class LinuxNativeLibrary : UnixNativeLibrary
     {
-        public MacLibraryLoader() : base(".dylib")
+        public LinuxNativeLibrary()
         {
         }
     }

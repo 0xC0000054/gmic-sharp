@@ -16,17 +16,40 @@ using System.Runtime.InteropServices;
 
 namespace GmicSharp.Interop
 {
-    internal abstract class LibraryLoader
+    internal sealed class LibraryLoader
     {
         private readonly string libraryName;
+        private readonly PlatformNativeLibrary nativeLibrary;
 
         private const string DllName = "libGmicSharpNative";
 
-        protected LibraryLoader(string dllFileExtension)
+        public LibraryLoader()
         {
-            if (dllFileExtension is null)
+            string dllFileExtension;
+
+            if (PlatformHelper.IsWindows)
             {
-                ExceptionUtil.ThrowArgumentNullException(nameof(dllFileExtension));
+                nativeLibrary = new WindowsNativeLibrary();
+                dllFileExtension = ".dll";
+            }
+            else if (PlatformHelper.IsLinux)
+            {
+                nativeLibrary = new LinuxNativeLibrary();
+                dllFileExtension = ".so";
+            }
+            else if (PlatformHelper.IsMac)
+            {
+                nativeLibrary = new MacNativeLibrary();
+                dllFileExtension = ".dylib";
+            }
+            else if (PlatformHelper.IsBsd)
+            {
+                nativeLibrary = new BsdNativeLibrary();
+                dllFileExtension = ".so";
+            }
+            else
+            {
+                throw new GmicException("The gmic-sharp native library is not supported on the current platform.");
             }
 
             libraryName = DllName + dllFileExtension;
@@ -47,7 +70,7 @@ namespace GmicSharp.Interop
                 ExceptionUtil.ThrowArgumentNullException(nameof(name));
             }
 
-            IntPtr symbol = ResolveExportedSymbol(libraryHandle, name);
+            IntPtr symbol = nativeLibrary.GetExport(libraryHandle, name);
 
             if (symbol == IntPtr.Zero)
             {
@@ -65,7 +88,7 @@ namespace GmicSharp.Interop
             {
                 if (File.Exists(path))
                 {
-                    LoadLibraryResult result = LoadLibrary(path);
+                    PlatformNativeLibrary.LoadLibraryResult result = nativeLibrary.Load(path);
 
                     if (result.Handle != IntPtr.Zero)
                     {
@@ -81,10 +104,6 @@ namespace GmicSharp.Interop
 
             return handle;
         }
-
-        protected abstract LoadLibraryResult LoadLibrary(string path);
-
-        protected abstract IntPtr ResolveExportedSymbol(IntPtr libraryHandle, string name);
 
         private static IReadOnlyList<string> GetLibrarySearchPaths(string libraryName)
         {
@@ -145,35 +164,6 @@ namespace GmicSharp.Interop
             }
 
             return platformName + "-" + processorArchitecture;
-        }
-
-        protected readonly struct LoadLibraryResult
-        {
-            public LoadLibraryResult(Exception error)
-            {
-                if (error is null)
-                {
-                    ExceptionUtil.ThrowArgumentNullException(nameof(error));
-                }
-
-                Error = error;
-                Handle = IntPtr.Zero;
-            }
-
-            public LoadLibraryResult(IntPtr handle)
-            {
-                if (handle == IntPtr.Zero)
-                {
-                    ExceptionUtil.ThrowArgumentNullException(nameof(handle));
-                }
-
-                Error = null;
-                Handle = handle;
-            }
-
-            public Exception Error { get; }
-
-            public IntPtr Handle { get; }
         }
     }
 }
