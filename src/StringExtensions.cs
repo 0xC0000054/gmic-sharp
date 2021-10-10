@@ -9,22 +9,10 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-using System;
-
 namespace GmicSharp
 {
     internal static class StringExtensions
     {
-        internal static bool Contains(this string item, string value, StringComparison comparisonType)
-        {
-            if (item is null)
-            {
-                ExceptionUtil.ThrowArgumentNullException(nameof(item));
-            }
-
-            return item.IndexOf(value, comparisonType) >= 0;
-        }
-
         internal static bool IsEmptyOrWhiteSpace(this string value)
         {
             if (value is null)
