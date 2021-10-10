@@ -34,18 +34,13 @@ namespace GmicSharp.Interop
             }
             else if (PlatformHelper.IsLinux)
             {
-                nativeLibrary = new LinuxNativeLibrary();
+                nativeLibrary = new UnixNativeLibrary();
                 dllFileExtension = ".so";
             }
             else if (PlatformHelper.IsMac)
             {
-                nativeLibrary = new MacNativeLibrary();
+                nativeLibrary = new UnixNativeLibrary();
                 dllFileExtension = ".dylib";
-            }
-            else if (PlatformHelper.IsBsd)
-            {
-                nativeLibrary = new BsdNativeLibrary();
-                dllFileExtension = ".so";
             }
             else
             {
