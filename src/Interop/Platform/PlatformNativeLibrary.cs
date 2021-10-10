@@ -27,6 +27,9 @@ namespace GmicSharp.Interop
         /// </exception>
         internal static PlatformNativeLibrary CreateInstance(Platform platform)
         {
+#if NETCOREAPP3_0_OR_GREATER
+            return new DotNetNativeLibrary();
+#else
             switch (platform)
             {
                 case Platform.Windows:
@@ -38,6 +41,7 @@ namespace GmicSharp.Interop
                 default:
                     throw new PlatformNotSupportedException();
             }
+#endif
         }
 
         /// <summary>

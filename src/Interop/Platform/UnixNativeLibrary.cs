@@ -9,6 +9,11 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+// When targeting .NET Core 3.0 or greater the DotNetNativeLibrary class will be used instead
+// of this platform-specific implementation.
+// The DotNetNativeLibrary class uses System.Runtime.InteropServices.NativeLibrary to support
+// cross-platform loading of native libraries. See DotNetNativeLibrary.cs
+#if !NETCOREAPP3_0_OR_GREATER
 using System;
 using System.Runtime.InteropServices;
 
@@ -59,3 +64,4 @@ namespace GmicSharp.Interop
         }
     }
 }
+#endif
