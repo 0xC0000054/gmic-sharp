@@ -23,7 +23,7 @@ namespace GmicSharp.Interop
     {
         internal sealed override LoadLibraryResult Load(string path)
         {
-            IntPtr handle = NativeMethods.libdl.LoadLibrary(path, NativeConstants.RTLD_NOW);
+            IntPtr handle = NativeMethods.LoadLibrary(path, NativeConstants.RTLD_NOW);
 
             if (handle != IntPtr.Zero)
             {
@@ -31,7 +31,7 @@ namespace GmicSharp.Interop
             }
             else
             {
-                string message = Marshal.PtrToStringAnsi(NativeMethods.libdl.GetErrorMessage()) ?? string.Empty;
+                string message = Marshal.PtrToStringAnsi(NativeMethods.GetErrorMessage()) ?? string.Empty;
 
                 return new LoadLibraryResult(new ExternalException(message));
             }
@@ -39,7 +39,7 @@ namespace GmicSharp.Interop
 
         internal sealed override IntPtr GetExport(IntPtr libraryHandle, string name)
         {
-            return NativeMethods.libdl.GetExportedSymbol(libraryHandle, name);
+            return NativeMethods.GetExportedSymbol(libraryHandle, name);
         }
 
         private static class NativeConstants
@@ -49,18 +49,14 @@ namespace GmicSharp.Interop
 
         private static class NativeMethods
         {
-            internal static class libdl
-            {
+            [DllImport("libdl", EntryPoint = "dlopen")]
+            internal static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)] string fileName, int flags);
 
-                [DllImport("libdl", EntryPoint = "dlopen")]
-                internal static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)] string fileName, int flags);
+            [DllImport("libdl", EntryPoint = "dlerror")]
+            internal static extern IntPtr GetErrorMessage();
 
-                [DllImport("libdl", EntryPoint = "dlerror")]
-                internal static extern IntPtr GetErrorMessage();
-
-                [DllImport("libdl", EntryPoint = "dlsym")]
-                internal static extern IntPtr GetExportedSymbol(IntPtr handle, [MarshalAs(UnmanagedType.LPStr)] string symbol);
-            }
+            [DllImport("libdl", EntryPoint = "dlsym")]
+            internal static extern IntPtr GetExportedSymbol(IntPtr handle, [MarshalAs(UnmanagedType.LPStr)] string symbol);
         }
     }
 }
