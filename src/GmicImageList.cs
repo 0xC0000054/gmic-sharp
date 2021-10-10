@@ -115,13 +115,11 @@ namespace GmicSharp
             uint height = (uint)bitmap.Height;
             GmicPixelFormat format = bitmap.GetGmicPixelFormat();
 
-            NativeImageFormat nativeImageFormat;
-            GmicImageListPixelData pixelData;
             // G'MIC uses a planar format, so the stride between rows is the image width.
             int planeStride = (int)width;
 
             // Add a new image to the native G'MIC image list.
-            GmicNative.GmicImageListAdd(nativeImageList, width, height, format, name, out pixelData, out nativeImageFormat);
+            GmicNative.GmicImageListAdd(nativeImageList, width, height, format, name, out GmicImageListPixelData pixelData, out NativeImageFormat nativeImageFormat);
 
             // Copy the pixel data to the native image.
             bitmap.CopyToGmicImage(nativeImageFormat, pixelData, planeStride);

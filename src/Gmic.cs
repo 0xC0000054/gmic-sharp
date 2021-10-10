@@ -470,9 +470,7 @@ namespace GmicSharp
             {
                 uint index = (uint)i;
 
-                Interop.GmicImageListImageData imageData;
-
-                gmicImages.GetImageData(index, out imageData);
+                gmicImages.GetImageData(index, out Interop.GmicImageListImageData imageData);
 
                 if (imageData.width > int.MaxValue || imageData.height > int.MaxValue)
                 {
