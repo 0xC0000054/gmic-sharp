@@ -10,42 +10,34 @@
 ////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace GmicSharp.Interop
 {
     internal static class PlatformHelper
     {
-        private static readonly Lazy<bool> isBsd = new Lazy<bool>(IsRunningOnBsd);
-        private static readonly Lazy<bool> isLinux = new Lazy<bool>(IsRunningOnLinux);
-        private static readonly Lazy<bool> isMac = new Lazy<bool>(IsRunningOnOSX);
-        private static readonly Lazy<bool> isWindows = new Lazy<bool>(IsRunningOnWindows);
+        private static readonly Lazy<Platform> currentPlatform = new Lazy<Platform>(GetCurrentPlatform);
 
-        public static bool IsBsd => isBsd.Value;
+        public static Platform CurrentPlatform => currentPlatform.Value;
 
-        public static bool IsLinux => isLinux.Value;
-
-        public static bool IsMac => isMac.Value;
-
-        public static bool IsWindows => isWindows.Value;
-
-        private static bool IsRunningOnBsd()
+        private static Platform GetCurrentPlatform()
         {
-            return System.Runtime.InteropServices.RuntimeInformation.OSDescription.Contains("BSD", StringComparison.OrdinalIgnoreCase);
-        }
+            Platform platform = Platform.Unknown;
 
-        private static bool IsRunningOnLinux()
-        {
-            return System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
-        }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                platform = Platform.Windows;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                platform = Platform.MacOS;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                platform = Platform.Unix;
+            }
 
-        private static bool IsRunningOnOSX()
-        {
-            return System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
-        }
-
-        private static bool IsRunningOnWindows()
-        {
-            return System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+            return platform;
         }
     }
 }

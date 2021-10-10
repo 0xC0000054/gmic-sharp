@@ -16,6 +16,31 @@ namespace GmicSharp.Interop
     internal abstract class PlatformNativeLibrary
     {
         /// <summary>
+        /// Creates a <see cref="PlatformNativeLibrary"/> instance for the specified platform.
+        /// </summary>
+        /// <param name="platform">The platform.</param>
+        /// <returns>
+        /// A <see cref="PlatformNativeLibrary"/> instance for the specified platform.
+        /// </returns>
+        /// <exception cref="PlatformNotSupportedException">
+        /// The Platform value is not supported.
+        /// </exception>
+        internal static PlatformNativeLibrary CreateInstance(Platform platform)
+        {
+            switch (platform)
+            {
+                case Platform.Windows:
+                    return new WindowsNativeLibrary();
+                case Platform.MacOS:
+                case Platform.Unix:
+                    return new UnixNativeLibrary();
+                case Platform.Unknown:
+                default:
+                    throw new PlatformNotSupportedException();
+            }
+        }
+
+        /// <summary>
         /// Loads a native library from the specified path.
         /// </summary>
         /// <param name="path">The path.</param>

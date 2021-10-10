@@ -25,26 +25,31 @@ namespace GmicSharp.Interop
 
         public LibraryLoader()
         {
+            try
+            {
+                nativeLibrary = PlatformNativeLibrary.CreateInstance(PlatformHelper.CurrentPlatform);
+            }
+            catch (PlatformNotSupportedException ex)
+            {
+                throw CreatePlatformNotSupportedException(ex);
+            }
+
             string dllFileExtension;
 
-            if (PlatformHelper.IsWindows)
+            switch (PlatformHelper.CurrentPlatform)
             {
-                nativeLibrary = new WindowsNativeLibrary();
-                dllFileExtension = ".dll";
-            }
-            else if (PlatformHelper.IsLinux)
-            {
-                nativeLibrary = new UnixNativeLibrary();
-                dllFileExtension = ".so";
-            }
-            else if (PlatformHelper.IsMac)
-            {
-                nativeLibrary = new UnixNativeLibrary();
-                dllFileExtension = ".dylib";
-            }
-            else
-            {
-                throw new GmicException("The gmic-sharp native library is not supported on the current platform.");
+                case Platform.Windows:
+                    dllFileExtension = ".dll";
+                    break;
+                case Platform.MacOS:
+                    dllFileExtension = ".dylib";
+                    break;
+                case Platform.Unix:
+                    dllFileExtension = ".so";
+                    break;
+                case Platform.Unknown:
+                default:
+                    throw CreatePlatformNotSupportedException();
             }
 
             libraryName = DllName + dllFileExtension;
@@ -100,6 +105,9 @@ namespace GmicSharp.Interop
             return handle;
         }
 
+        private static GmicException CreatePlatformNotSupportedException(Exception inner = null) =>
+            new GmicException("The gmic-sharp native library is not supported on the current platform.", inner);
+
         private static IReadOnlyList<string> GetLibrarySearchPaths(string libraryName)
         {
             string assemblyDir = Path.GetDirectoryName(typeof(LibraryLoader).Assembly.Location);
@@ -119,25 +127,20 @@ namespace GmicSharp.Interop
             string platformName;
             string processorArchitecture;
 
-            if (PlatformHelper.IsWindows)
+            switch (PlatformHelper.CurrentPlatform)
             {
-                platformName = "win";
-            }
-            else if (PlatformHelper.IsLinux)
-            {
-                platformName = "linux";
-            }
-            else if (PlatformHelper.IsMac)
-            {
-                platformName = "osx";
-            }
-            else if (PlatformHelper.IsBsd)
-            {
-                platformName = "unix";
-            }
-            else
-            {
-                throw new PlatformNotSupportedException();
+                case Platform.Windows:
+                    platformName = "win";
+                    break;
+                case Platform.MacOS:
+                    platformName = "osx";
+                    break;
+                case Platform.Unix:
+                    platformName = "linux";
+                    break;
+                case Platform.Unknown:
+                default:
+                    throw CreatePlatformNotSupportedException();
             }
 
             switch (RuntimeInformation.ProcessArchitecture)
