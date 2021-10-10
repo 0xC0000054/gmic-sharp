@@ -12,6 +12,7 @@
 using GmicSharp.Interop;
 using System;
 using System.ComponentModel;
+using System.Threading;
 
 namespace GmicSharp
 {
@@ -21,11 +22,14 @@ namespace GmicSharp
     /// <seealso cref="IDisposable" />
     public abstract class GmicBitmap : IDisposable
     {
+        private int isDisposed;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GmicBitmap"/> class.
         /// </summary>
         protected GmicBitmap()
         {
+            isDisposed = 0;
         }
 
         /// <summary>
@@ -35,8 +39,20 @@ namespace GmicSharp
         /// <param name="height">The bitmap height.</param>
         protected GmicBitmap(int width, int height)
         {
+            isDisposed = 0;
             Width = width;
             Height = height;
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="GmicBitmap"/> class.
+        /// </summary>
+        ~GmicBitmap()
+        {
+            if (Interlocked.Exchange(ref isDisposed, 1) == 0)
+            {
+                Dispose(disposing: false);
+            }
         }
 
         /// <summary>
@@ -44,7 +60,11 @@ namespace GmicSharp
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            if (Interlocked.Exchange(ref isDisposed, 1) == 0)
+            {
+                Dispose(disposing: true);
+                GC.SuppressFinalize(this);
+            }
         }
 
         /// <summary>
