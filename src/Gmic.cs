@@ -238,7 +238,10 @@ namespace GmicSharp
 
                 if (exception is GmicException)
                 {
-                    throw exception;
+                    System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(exception).Throw();
+                    // The following return statement will never be executed,
+                    // it is only present for compiler appeasement.
+                    return null;
                 }
                 else
                 {
