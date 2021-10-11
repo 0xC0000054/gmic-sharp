@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace GmicSharp.Interop
@@ -53,10 +54,7 @@ namespace GmicSharp.Interop
             }
 
             libraryName = DllName + dllFileExtension;
-            LibrarySearchPaths = GetLibrarySearchPaths(libraryName);
         }
-
-        public IReadOnlyList<string> LibrarySearchPaths { get; }
 
         public TDelegate GetExport<TDelegate>(IntPtr libraryHandle, string name) where TDelegate : Delegate
         {
@@ -80,11 +78,18 @@ namespace GmicSharp.Interop
             return Marshal.GetDelegateForFunctionPointer<TDelegate>(symbol);
         }
 
+        /// <summary>
+        /// Loads the native library.
+        /// </summary>
+        /// <returns>The native library handle</returns>
+        /// <exception cref="GmicException">Unable to load the gmic-sharp native library.</exception>
         public IntPtr LoadNativeLibrary()
         {
             IntPtr handle = IntPtr.Zero;
 
-            foreach (string path in LibrarySearchPaths)
+            List<string> librarySearchPaths = GetLibrarySearchPaths(libraryName);
+
+            foreach (string path in librarySearchPaths)
             {
                 if (File.Exists(path))
                 {
@@ -97,9 +102,14 @@ namespace GmicSharp.Interop
                     }
                     else
                     {
-                        throw new GmicException($"Unable to the gmic-sharp native library from { path }", result.Error);
+                        throw new GmicException($"Unable to load the gmic-sharp native library from { path }", result.Error);
                     }
                 }
+            }
+
+            if (handle == IntPtr.Zero)
+            {
+                throw new GmicException($"The gmic-sharp native library was not found. SearchPaths={ librarySearchPaths.Aggregate((a, b) => a + ";" + b) }");
             }
 
             return handle;
@@ -108,7 +118,7 @@ namespace GmicSharp.Interop
         private static GmicException CreatePlatformNotSupportedException(Exception inner = null) =>
             new GmicException("The gmic-sharp native library is not supported on the current platform.", inner);
 
-        private static IReadOnlyList<string> GetLibrarySearchPaths(string libraryName)
+        private static List<string> GetLibrarySearchPaths(string libraryName)
         {
             string assemblyDir = Path.GetDirectoryName(typeof(LibraryLoader).Assembly.Location);
             string targetPlatformId = GetTargetPlatfromIdentifer();

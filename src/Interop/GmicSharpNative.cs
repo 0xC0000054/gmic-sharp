@@ -11,7 +11,6 @@
 
 using System;
 using System.Globalization;
-using System.Linq;
 
 namespace GmicSharp.Interop
 {
@@ -98,11 +97,6 @@ namespace GmicSharp.Interop
             LibraryLoader loader = new LibraryLoader();
 
             nativeLibraryHandle = loader.LoadNativeLibrary();
-
-            if (nativeLibraryHandle == IntPtr.Zero)
-            {
-                throw new GmicException($"The gmic-sharp native library was not found. SearchPaths={ loader.LibrarySearchPaths.Aggregate((a, b) => a + ";" + b) }");
-            }
 
             GmicNativeMethods.Initialize(nativeLibraryHandle, loader);
         }
