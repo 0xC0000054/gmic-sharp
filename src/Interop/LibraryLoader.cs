@@ -24,6 +24,10 @@ namespace GmicSharp.Interop
 
         private const string DllName = "libGmicSharpNative";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LibraryLoader"/> class.
+        /// </summary>
+        /// <exception cref="GmicException">The native library is not supported on the current platform.</exception>
         public LibraryLoader()
         {
             try
@@ -56,6 +60,19 @@ namespace GmicSharp.Interop
             libraryName = DllName + dllFileExtension;
         }
 
+        /// <summary>
+        /// Gets a delegate for the specified native library export.
+        /// </summary>
+        /// <typeparam name="TDelegate">The type of the delegate.</typeparam>
+        /// <param name="libraryHandle">The native library handle.</param>
+        /// <param name="name">The exported method name.</param>
+        /// <returns>A delegate for the specified native library export.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="libraryHandle"/> is <see cref="IntPtr.Zero"/>.
+        /// -or-
+        /// <paramref name="name"/> is <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="GmicException">The entrypoint was not found in the module.</exception>
         public TDelegate GetExport<TDelegate>(IntPtr libraryHandle, string name) where TDelegate : Delegate
         {
             if (libraryHandle == IntPtr.Zero)
