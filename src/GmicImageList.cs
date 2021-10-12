@@ -18,7 +18,7 @@ namespace GmicSharp
     /// The native G'MIC image list.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
-    internal sealed class GmicImageList : IDisposable
+    internal sealed class GmicImageList<TGmicBitmap> : IDisposable where TGmicBitmap : GmicBitmap
     {
 #pragma warning disable IDE0032 // Use auto property
         private readonly SafeGmicImageList nativeImageList;
@@ -26,7 +26,7 @@ namespace GmicSharp
         private bool disposed;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GmicImageList"/> class.
+        /// Initializes a new instance of the <see cref="GmicImageList{TGmicBitmap}"/> class.
         /// </summary>
         /// <exception cref="GmicException">
         /// The native library could not be found or loaded.
@@ -99,10 +99,10 @@ namespace GmicSharp
         /// Adds the specified bitmap.
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
-        /// <param name="name">The name.</param>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+        /// <exception cref="GmicException">An error occurred when adding the image.</exception>
         /// <exception cref="OutOfMemoryException">Insufficient memory to add the image.</exception>
-        public void Add(GmicBitmap bitmap, string name)
+        public void Add(TGmicBitmap bitmap)
         {
             if (bitmap is null)
             {
@@ -119,7 +119,13 @@ namespace GmicSharp
             int planeStride = (int)width;
 
             // Add a new image to the native G'MIC image list.
-            GmicNative.GmicImageListAdd(nativeImageList, width, height, format, name, out GmicImageListPixelData pixelData, out NativeImageFormat nativeImageFormat);
+            GmicNative.GmicImageListAdd(nativeImageList,
+                                        width,
+                                        height,
+                                        format,
+                                        bitmap.Name,
+                                        out GmicImageListPixelData pixelData,
+                                        out NativeImageFormat nativeImageFormat);
 
             // Copy the pixel data to the native image.
             bitmap.CopyToGmicImage(nativeImageFormat, pixelData, planeStride);
@@ -158,7 +164,7 @@ namespace GmicSharp
         {
             if (disposed)
             {
-                ExceptionUtil.ThrowObjectDisposedException(nameof(GmicImageList));
+                ExceptionUtil.ThrowObjectDisposedException(nameof(GmicImageList<TGmicBitmap>));
             }
         }
     }

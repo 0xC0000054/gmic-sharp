@@ -7,9 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+* A `Name` property to the `GmicBitmap` class.
+  * This replaces the `AddInputImage(TGmicBitmap, string)` method in the `Gmic<TGmicBitmap>` class.
+
+### Changed
+
+* The `Gmic<TGmicBitmap>` class no longer implements `IDisposable` **(breaking change)**.
+* The `Gmic<TGmicBitmap>` class no longer implements  the [Event-based Asynchronous Pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/event-based-asynchronous-pattern-overview) **(breaking change)**.
+  * The Event-based Asynchronous Pattern was replaced by the Task-based Asynchronous Pattern in .NET 4.0.
+* Renamed the `RunGmicTaskAsync` methods to `RunGmicAsync` in the `Gmic<TGmicBitmap>` class **(breaking change)**.
+* All of the `RunGmic*` methods in the `Gmic<TGmicBitmap>` class now take the input images as a parameter **(breaking change)**.
+  * This allows the `RunGmicAsync` methods to execute G'MIC commands in parallel.
+
 ### Fixed
 
 The return value documentation for `RunGmic`.
+
+### Removed
+
+* The `AddInputImage` methods in the `Gmic<TGmicBitmap>` class.
+* The `ClearInputImages` method in the `Gmic<TGmicBitmap>` class.
+* The `void RunGmicAsync(string)` and `RunGmicAsyncCancel` methods in the `Gmic<TGmicBitmap>` class.
+* The `RunGmicCompleted` and `RunGmicProgressChanged` events in the `Gmic<TGmicBitmap>` class.
 
 ## [v0.7.0](https://github.com/0xC0000054/gmic-sharp/compare/v0.6.0...v0.7.0) - 2020-07-10
 

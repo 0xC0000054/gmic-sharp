@@ -30,6 +30,7 @@ namespace GmicSharp
         protected GmicBitmap()
         {
             isDisposed = 0;
+            Name = null;
         }
 
         /// <summary>
@@ -42,6 +43,7 @@ namespace GmicSharp
             isDisposed = 0;
             Width = width;
             Height = height;
+            Name = null;
         }
 
         /// <summary>
@@ -68,6 +70,14 @@ namespace GmicSharp
         }
 
         /// <summary>
+        /// Gets or sets the name of the image.
+        /// </summary>
+        /// <value>
+        /// The name of the image.
+        /// </value>
+        public string Name { get; set; }
+
+        /// <summary>
         /// Gets the bitmap width.
         /// </summary>
         /// <value>
@@ -82,6 +92,14 @@ namespace GmicSharp
         /// The bitmap height.
         /// </value>
         public virtual int Height { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        /// <value>
+        /// <see langword="true"/> if this instance is disposed; otherwise, <see langword="false"/>.
+        /// </value>
+        internal bool IsDisposed => Volatile.Read(ref isDisposed) == 1;
 
         /// <summary>
         /// Gets the G'MIC pixel format.
