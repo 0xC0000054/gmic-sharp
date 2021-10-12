@@ -179,14 +179,7 @@ namespace GmicSharp.Interop
                 }
             }
 
-            if (count == 0)
-            {
-                return string.Empty;
-            }
-            else
-            {
-                return Encoding.UTF8.GetString(data, 0, count);
-            }
+            return count == 0 ? string.Empty : Encoding.UTF8.GetString(data, 0, count);
         }
 
         private static void ValidateGmicImageList(SafeGmicImageList list)
