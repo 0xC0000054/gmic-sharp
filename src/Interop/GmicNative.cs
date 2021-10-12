@@ -64,11 +64,11 @@ namespace GmicSharp.Interop
             nativeImageFormat = ConvertToNativeImageFormat(format);
 
             GmicStatus status = GmicNativeMethods.Instance.GmicImageListAdd(list,
-                                                                   width,
-                                                                   height,
-                                                                   nativeImageFormat,
-                                                                   string.IsNullOrWhiteSpace(name) ? null : name,
-                                                                   pixelData);
+                                                                            width,
+                                                                            height,
+                                                                            nativeImageFormat,
+                                                                            string.IsNullOrWhiteSpace(name) ? null : name,
+                                                                            pixelData);
 
             if (status != GmicStatus.Ok)
             {
