@@ -185,7 +185,7 @@ namespace GmicSharp.Interop
             }
             else
             {
-                return Encoding.ASCII.GetString(data, 0, count);
+                return Encoding.UTF8.GetString(data, 0, count);
             }
         }
 
