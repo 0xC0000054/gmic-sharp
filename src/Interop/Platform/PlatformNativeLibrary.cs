@@ -63,7 +63,6 @@ namespace GmicSharp.Interop
         /// </returns>
         internal abstract IntPtr GetExport(IntPtr libraryHandle, string name);
 
-
         internal readonly struct LoadLibraryResult
         {
             public LoadLibraryResult(Exception error)
