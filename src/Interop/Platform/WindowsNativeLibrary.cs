@@ -61,7 +61,7 @@ namespace GmicSharp.Interop
 
         private static class NativeMethods
         {
-            [DllImport("kernel32.dll", EntryPoint = "LoadLibraryW")]
+            [DllImport("kernel32.dll", EntryPoint = "LoadLibraryW", SetLastError = true)]
             public static extern IntPtr LoadLibraryW([In(), MarshalAs(UnmanagedType.LPWStr)] string lpLibFileName);
 
             [DllImport("kernel32.dll", EntryPoint = "GetProcAddress")]
