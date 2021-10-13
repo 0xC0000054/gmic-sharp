@@ -9,6 +9,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+using System;
 using System.Runtime.InteropServices;
 
 namespace GmicSharp.Interop
@@ -20,6 +21,8 @@ namespace GmicSharp.Interop
         public uint height;
         public GmicImageListPixelData pixels;
         public NativeImageFormat format;
+        public IntPtr name;
+        public int nameLength;
 
         public GmicImageListImageData()
         {
@@ -27,6 +30,8 @@ namespace GmicSharp.Interop
             height = 0;
             pixels = new GmicImageListPixelData();
             format = NativeImageFormat.Gray8;
+            name = IntPtr.Zero;
+            nameLength = 0;
         }
     }
 }

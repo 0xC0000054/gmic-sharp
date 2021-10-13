@@ -172,6 +172,14 @@ namespace GmicSharp
 
                 bitmap.CopyFromGmicImage(imageData.format, imageData.pixels, planeStride);
 
+                if (imageData.name != IntPtr.Zero)
+                {
+                    unsafe
+                    {
+                        bitmap.Name = System.Text.Encoding.UTF8.GetString((byte*)imageData.name, imageData.nameLength);
+                    }
+                }
+
                 gmicBitmaps.Add(bitmap);
             }
 

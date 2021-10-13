@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * A `Name` property to the `GmicBitmap` class.
   * This replaces the `AddInputImage(TGmicBitmap, string)` method in the `Gmic<TGmicBitmap>` class.
+  * G'MIC scripts can set the name of the output images.
 
 ### Changed
 
