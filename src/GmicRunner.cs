@@ -125,12 +125,13 @@ namespace GmicSharp
 
         private OutputImageCollection<TGmicBitmap> CreateOutputBitmaps()
         {
-            if (gmicImages.Count > int.MaxValue)
+            uint gmicImageListCount = gmicImages.Count;
+            if (gmicImageListCount > int.MaxValue)
             {
                 throw new NotSupportedException($"The number of output G'MIC images exceeds { int.MaxValue }.");
             }
 
-            List<TGmicBitmap> gmicBitmaps = new List<TGmicBitmap>((int)gmicImages.Count);
+            List<TGmicBitmap> gmicBitmaps = new List<TGmicBitmap>((int)gmicImageListCount);
 
             for (int i = 0; i < gmicBitmaps.Capacity; i++)
             {
