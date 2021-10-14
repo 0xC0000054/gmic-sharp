@@ -133,10 +133,8 @@ namespace GmicSharp
 
             List<TGmicBitmap> gmicBitmaps = new List<TGmicBitmap>((int)gmicImageListCount);
 
-            for (int i = 0; i < gmicBitmaps.Capacity; i++)
+            for (uint index = 0; index < gmicImageListCount; index++)
             {
-                uint index = (uint)i;
-
                 gmicImages.GetImageData(index, out GmicImageListImageData imageData);
 
                 if (imageData.width > int.MaxValue || imageData.height > int.MaxValue)
