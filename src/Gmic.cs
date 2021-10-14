@@ -23,10 +23,7 @@ namespace GmicSharp
     /// <seealso cref="IDisposable" />
     public sealed class Gmic<TGmicBitmap> where TGmicBitmap : GmicBitmap
     {
-#pragma warning disable IDE0032 // Use auto property
         private string hostName;
-#pragma warning restore IDE0032 // Use auto property
-
         private readonly IGmicOutputImageFactory<TGmicBitmap> outputImageFactory;
 
         /// <summary>

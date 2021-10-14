@@ -22,9 +22,7 @@ namespace GmicSharp
     /// <seealso cref="Bitmap"/>
     public sealed class GdiPlusGmicBitmap : GmicBitmap
     {
-#pragma warning disable IDE0032 // Use auto property
         private Bitmap bitmap;
-#pragma warning restore IDE0032 // Use auto property
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GdiPlusGmicBitmap"/> class.

@@ -20,9 +20,7 @@ namespace GmicSharp
     /// <seealso cref="System.IDisposable" />
     internal sealed class GmicImageList<TGmicBitmap> : IDisposable where TGmicBitmap : GmicBitmap
     {
-#pragma warning disable IDE0032 // Use auto property
         private readonly SafeGmicImageList nativeImageList;
-#pragma warning restore IDE0032 // Use auto property
         private bool disposed;
 
         /// <summary>
