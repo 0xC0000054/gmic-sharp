@@ -63,8 +63,4 @@
     <None Remove="GmicSharp.xml" />
   </ItemGroup>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="&quot;$(SolutionDir)GenerateAssemblyVersionInfo\bin\$(ConfigurationName)\netcoreapp3.1\GenerateAssemblyVersionInfo.exe&quot; &quot;$(SolutionDir)&quot;" />
-  </Target>
-
 </Project>
