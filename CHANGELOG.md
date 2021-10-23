@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 The return value documentation for `RunGmic`.
+A few bugs in the  `GmicBitmap`  `IDisposable` implementation.
 
 ### Removed
 
