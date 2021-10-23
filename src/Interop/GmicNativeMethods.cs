@@ -19,7 +19,6 @@ namespace GmicSharp.Interop
         private readonly GetLibraryVersionDelegate getLibraryVersion;
         private readonly GmicImageListCreateDelegate gmicImageListCreate;
         private readonly GmicImageListDestroyDelegate gmicImageListDestroy;
-        private readonly GmicImageListClearDelegate gmicImageListClear;
         private readonly GmicImageListGetCountDelegate gmicImageListGetCount;
         private readonly GmicImageListGetImageDataDelegate gmicImageListGetImageData;
         private readonly GmicImageListAddDelegate gmicImageListAdd;
@@ -38,9 +37,6 @@ namespace GmicSharp.Interop
 
         [UnmanagedFunctionPointer(DllCallConv)]
         private delegate void GmicImageListDestroyDelegate(IntPtr handle);
-
-        [UnmanagedFunctionPointer(DllCallConv)]
-        private delegate void GmicImageListClearDelegate(SafeGmicImageList list);
 
         [UnmanagedFunctionPointer(DllCallConv)]
         private delegate uint GmicImageListGetCountDelegate(SafeGmicImageList list);
@@ -69,7 +65,6 @@ namespace GmicSharp.Interop
             getLibraryVersion = loader.GetExport<GetLibraryVersionDelegate>(libraryHandle, "GetLibraryVersion");
             gmicImageListCreate = loader.GetExport<GmicImageListCreateDelegate>(libraryHandle, "GmicImageListCreate");
             gmicImageListDestroy = loader.GetExport<GmicImageListDestroyDelegate>(libraryHandle, "GmicImageListDestroy");
-            gmicImageListClear = loader.GetExport<GmicImageListClearDelegate>(libraryHandle, "GmicImageListClear");
             gmicImageListGetCount = loader.GetExport<GmicImageListGetCountDelegate>(libraryHandle, "GmicImageListGetCount");
             gmicImageListGetImageData = loader.GetExport<GmicImageListGetImageDataDelegate>(libraryHandle, "GmicImageListGetImageData");
             gmicImageListAdd = loader.GetExport<GmicImageListAddDelegate>(libraryHandle, "GmicImageListAdd");
@@ -122,11 +117,6 @@ namespace GmicSharp.Interop
         internal void GmicImageListDestroy(IntPtr handle)
         {
             gmicImageListDestroy(handle);
-        }
-
-        internal void GmicImageListClear(SafeGmicImageList list)
-        {
-            gmicImageListClear(list);
         }
 
         internal uint GmicImageListGetCount(SafeGmicImageList list)

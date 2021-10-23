@@ -130,17 +130,6 @@ namespace GmicSharp
         }
 
         /// <summary>
-        /// Clears the image list.
-        /// </summary>
-        /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
-        public void Clear()
-        {
-            VerifyNotDisposed();
-
-            GmicNative.GmicImageListClear(nativeImageList);
-        }
-
-        /// <summary>
         /// Gets the image data.
         /// </summary>
         /// <param name="index">The index.</param>

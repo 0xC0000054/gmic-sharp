@@ -22,13 +22,6 @@ namespace GmicSharp.Interop
             return GmicNativeMethods.Instance.GmicImageListCreate();
         }
 
-        internal static void GmicImageListClear(SafeGmicImageList list)
-        {
-            ValidateGmicImageList(list);
-
-            GmicNativeMethods.Instance.GmicImageListClear(list);
-        }
-
         internal static uint GmicImageListGetCount(SafeGmicImageList list)
         {
             ValidateGmicImageList(list);
