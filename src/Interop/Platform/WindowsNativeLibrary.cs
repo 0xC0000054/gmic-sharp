@@ -62,17 +62,17 @@ namespace GmicSharp.Interop
         private static class NativeMethods
         {
             [DllImport("kernel32.dll", EntryPoint = "LoadLibraryW", SetLastError = true)]
-            public static extern IntPtr LoadLibraryW([In(), MarshalAs(UnmanagedType.LPWStr)] string lpLibFileName);
+            public static extern IntPtr LoadLibraryW([MarshalAs(UnmanagedType.LPWStr)] string lpLibFileName);
 
             [DllImport("kernel32.dll", EntryPoint = "GetProcAddress")]
-            public static extern IntPtr GetProcAddress([In()] IntPtr hModule, [In(), MarshalAs(UnmanagedType.LPStr)] string lpProcName);
+            public static extern IntPtr GetProcAddress(IntPtr hModule, [MarshalAs(UnmanagedType.LPStr)] string lpProcName);
 
             [DllImport("kernel32.dll", EntryPoint = "SetErrorMode")]
-            public static extern uint SetErrorMode([In()] uint uMode);
+            public static extern uint SetErrorMode(uint uMode);
 
             [DllImport("kernel32.dll", EntryPoint = "SetThreadErrorMode")]
             [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool SetThreadErrorMode([In()] uint dwNewMode, [Out()] out uint lpOldMode);
+            public static extern bool SetThreadErrorMode(uint dwNewMode, out uint lpOldMode);
         }
 
         private sealed class DisableLoadLibraryErrorDialog : IDisposable
