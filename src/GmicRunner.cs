@@ -29,6 +29,7 @@ namespace GmicSharp
         private readonly TaskCompletionSource<OutputImageCollection<TGmicBitmap>> taskCompletionSource;
         private readonly CancellationToken cancellationToken;
         private readonly IProgress<int> taskProgress;
+        private readonly SynchronizationContext synchronizationContext;
 
         private GmicImageList<TGmicBitmap> gmicImages;
         private Timer updateProgressTimer;
@@ -36,6 +37,7 @@ namespace GmicSharp
         private int progressUpdating;
         private object updateProgressTimerCookie;
         private int lastProgressValue;
+        private Thread gmicWorkerThread;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GmicRunner{TGmicBitmap}" /> class.
@@ -70,6 +72,13 @@ namespace GmicSharp
             this.cancellationToken = cancellationToken;
             this.taskProgress = taskProgress;
 
+            if (SynchronizationContext.Current is null)
+            {
+                SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
+            }
+
+            synchronizationContext = SynchronizationContext.Current;
+
             gmicImages = new GmicImageList<TGmicBitmap>();
 
             if (inputImages != null)
@@ -99,6 +108,7 @@ namespace GmicSharp
         /// <summary>
         /// Runs the specified G'MIC command.
         /// </summary>
+        /// <exception cref="InvalidOperationException">The G'MIC worker thread is already running.</exception>
         /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
         public void StartAsync()
         {
@@ -107,14 +117,21 @@ namespace GmicSharp
                 ExceptionUtil.ThrowObjectDisposedException(nameof(GmicRunner<TGmicBitmap>));
             }
 
+            if (gmicWorkerThread != null)
+            {
+                ExceptionUtil.ThrowInvalidOperationException("The G'MIC worker thread is already running.");
+            }
+
             try
             {
-                _ = System.Threading.Tasks.Task.Run(GmicWorker, cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                Dispose();
-                taskCompletionSource.TrySetCanceled();
+                // G'MIC can use a large amount of stack space, so we will attempt to set the
+                // maximum stack size of worker thread to 8 megabytes.
+                // On Windows, the default thread stack size is set in the executable header
+                // and is typically 1 megabyte.
+                const int GmicThreadStackSize = 8 * 1024 * 1024;
+
+                gmicWorkerThread = new Thread(GmicWorker, GmicThreadStackSize);
+                gmicWorkerThread.Start();
             }
             catch (Exception ex)
             {
@@ -202,6 +219,8 @@ namespace GmicSharp
                     updateProgressTimer.Dispose();
                     updateProgressTimer = null;
                 }
+
+                gmicWorkerThread = null;
             }
         }
 
@@ -287,7 +306,18 @@ namespace GmicSharp
                 cancellationTokenRegistration.Dispose();
             }
 
-            GmicWorkerCompleted(error, canceled);
+            synchronizationContext.Post(GmicWorkerCompletedCallback,
+                                        new GmicWorkerCompletedState(error, canceled));
+        }
+
+        private void GmicWorkerCompletedCallback(object state)
+        {
+            gmicWorkerThread.Join();
+            gmicWorkerThread = null;
+
+            GmicWorkerCompletedState args = (GmicWorkerCompletedState)state;
+
+            GmicWorkerCompleted(args.Error, args.Canceled);
         }
 
         private void GmicWorkerCompleted(Exception error, bool canceled)
@@ -381,6 +411,19 @@ namespace GmicSharp
                 updateProgressTimer.Dispose();
                 updateProgressTimer = null;
             }
+        }
+
+        private sealed class GmicWorkerCompletedState
+        {
+            public GmicWorkerCompletedState(Exception error, bool canceled)
+            {
+                Error = error;
+                Canceled = canceled;
+            }
+
+            public Exception Error { get; }
+
+            public bool Canceled { get; }
         }
     }
 }
