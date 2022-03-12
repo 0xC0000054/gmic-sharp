@@ -134,11 +134,11 @@ namespace GmicSharp
 
             if (analyzeImageResult.HasTransparency)
             {
-                gmicPixelFormat = analyzeImageResult.IsGrayscale ? GmicPixelFormat.GrayAlpha16 : GmicPixelFormat.Rgba32;
+                gmicPixelFormat = analyzeImageResult.IsGrayscale ? GmicPixelFormat.GrayAlpha : GmicPixelFormat.RgbAlpha;
             }
             else
             {
-                gmicPixelFormat = analyzeImageResult.IsGrayscale ? GmicPixelFormat.Gray8 : GmicPixelFormat.Rgb24;
+                gmicPixelFormat = analyzeImageResult.IsGrayscale ? GmicPixelFormat.Gray : GmicPixelFormat.Rgb;
             }
 
             return gmicPixelFormat;

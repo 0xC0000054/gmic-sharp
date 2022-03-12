@@ -17,23 +17,23 @@ namespace GmicSharp
     public enum GmicPixelFormat
     {
         /// <summary>
-        /// An 8 bits-per-pixel grayscale format.
+        /// Gray scale without an alpha channel.
         /// </summary>
-        Gray8,
+        Gray,
 
         /// <summary>
-        /// A 16 bits-per-pixel format; Each channel (gray and alpha) is allocated 8 bits.
+        /// Gray scale with an alpha channel.
         /// </summary>
-        GrayAlpha16,
+        GrayAlpha,
 
         /// <summary>
-        /// A 24 bits-per-pixel format; Each channel (red, green and blue) is allocated 8 bits.
+        /// Red, green and blue color channels without an alpha channel.
         /// </summary>
-        Rgb24,
+        Rgb,
 
         /// <summary>
-        /// A 32 bits-per-pixel format; Each channel (red, green, blue and alpha) is allocated 8 bits.
+        /// Red, green and blue color channels with an alpha channel.
         /// </summary>
-        Rgba32
+        RgbAlpha
     }
 }

@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * All of the `RunGmic*` methods in the `Gmic<TGmicBitmap>` class now take the input images as a parameter **(breaking change)**.
   * This allows the `RunGmicAsync` methods to execute G'MIC commands in parallel.
 * The G'MIC worker now uses dedicated thread with a larger stack size.
+* Removed the bit-depth from the `GmicPixelFormat` value names.
+* Renamed the `GmicPixelFormat` `Rgba` value to `RgbAlpha`
 
 ### Fixed
 

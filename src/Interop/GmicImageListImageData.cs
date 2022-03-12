@@ -29,7 +29,7 @@ namespace GmicSharp.Interop
             width = 0;
             height = 0;
             pixels = new GmicImageListPixelData();
-            format = NativeImageFormat.Gray8;
+            format = NativeImageFormat.Gray;
             name = IntPtr.Zero;
             nameLength = 0;
         }

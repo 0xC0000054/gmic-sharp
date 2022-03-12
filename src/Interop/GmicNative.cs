@@ -92,14 +92,14 @@ namespace GmicSharp.Interop
         {
             switch (format)
             {
-                case GmicPixelFormat.Gray8:
-                    return NativeImageFormat.Gray8;
-                case GmicPixelFormat.GrayAlpha16:
-                    return NativeImageFormat.GrayAlpha88;
-                case GmicPixelFormat.Rgb24:
-                    return NativeImageFormat.Rgb888;
-                case GmicPixelFormat.Rgba32:
-                    return NativeImageFormat.Rgba8888;
+                case GmicPixelFormat.Gray:
+                    return NativeImageFormat.Gray;
+                case GmicPixelFormat.GrayAlpha:
+                    return NativeImageFormat.GrayAlpha;
+                case GmicPixelFormat.Rgb:
+                    return NativeImageFormat.Rgb;
+                case GmicPixelFormat.RgbAlpha:
+                    return NativeImageFormat.RgbAlpha;
                 default:
                     throw new InvalidEnumArgumentException(nameof(format), (int)format, typeof(GmicPixelFormat));
             }

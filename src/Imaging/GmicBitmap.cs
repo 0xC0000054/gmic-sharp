@@ -118,16 +118,16 @@ namespace GmicSharp
         {
             switch (outputImageFormat)
             {
-                case NativeImageFormat.Gray8:
+                case NativeImageFormat.Gray:
                     CopyFromGmicImageGray(pixelData.redGrayUnion.gray, planeStride);
                     break;
-                case NativeImageFormat.GrayAlpha88:
+                case NativeImageFormat.GrayAlpha:
                     CopyFromGmicImageGrayAlpha(pixelData.redGrayUnion.gray, pixelData.alpha, planeStride);
                     break;
-                case NativeImageFormat.Rgb888:
+                case NativeImageFormat.Rgb:
                     CopyFromGmicImageRGB(pixelData.redGrayUnion.red, pixelData.green, pixelData.blue, planeStride);
                     break;
-                case NativeImageFormat.Rgba8888:
+                case NativeImageFormat.RgbAlpha:
                     CopyFromGmicImageRGBA(pixelData.redGrayUnion.red, pixelData.green, pixelData.blue, pixelData.alpha, planeStride);
                     break;
                 default:
@@ -146,16 +146,16 @@ namespace GmicSharp
         {
             switch (gmicImageFormat)
             {
-                case NativeImageFormat.Gray8:
+                case NativeImageFormat.Gray:
                     CopyToGmicImageGray(pixelData.redGrayUnion.gray, planeStride);
                     break;
-                case NativeImageFormat.GrayAlpha88:
+                case NativeImageFormat.GrayAlpha:
                     CopyToGmicImageGrayAlpha(pixelData.redGrayUnion.gray, pixelData.alpha, planeStride);
                     break;
-                case NativeImageFormat.Rgb888:
+                case NativeImageFormat.Rgb:
                     CopyToGmicImageRGB(pixelData.redGrayUnion.red, pixelData.green, pixelData.blue, planeStride);
                     break;
-                case NativeImageFormat.Rgba8888:
+                case NativeImageFormat.RgbAlpha:
                     CopyToGmicImageRGBA(pixelData.redGrayUnion.red, pixelData.green, pixelData.blue, pixelData.alpha, planeStride);
                     break;
                 default:

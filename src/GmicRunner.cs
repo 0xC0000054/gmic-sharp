@@ -165,17 +165,17 @@ namespace GmicSharp
                 GmicPixelFormat gmicPixelFormat;
                 switch (imageData.format)
                 {
-                    case NativeImageFormat.Gray8:
-                        gmicPixelFormat = GmicPixelFormat.Gray8;
+                    case NativeImageFormat.Gray:
+                        gmicPixelFormat = GmicPixelFormat.Gray;
                         break;
-                    case NativeImageFormat.GrayAlpha88:
-                        gmicPixelFormat = GmicPixelFormat.GrayAlpha16;
+                    case NativeImageFormat.GrayAlpha:
+                        gmicPixelFormat = GmicPixelFormat.GrayAlpha;
                         break;
-                    case NativeImageFormat.Rgb888:
-                        gmicPixelFormat = GmicPixelFormat.Rgb24;
+                    case NativeImageFormat.Rgb:
+                        gmicPixelFormat = GmicPixelFormat.Rgb;
                         break;
-                    case NativeImageFormat.Rgba8888:
-                        gmicPixelFormat = GmicPixelFormat.Rgba32;
+                    case NativeImageFormat.RgbAlpha:
+                        gmicPixelFormat = GmicPixelFormat.RgbAlpha;
                         break;
                     default:
                         throw new InvalidOperationException($"Unsupported { nameof(NativeImageFormat) } value: { imageData.format }.");
