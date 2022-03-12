@@ -4,16 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GmicSharp", "GmicSharp.csproj", "{AEE56C57-8341-4D8C-B525-15DAFA74C1B7}"
-	ProjectSection(ProjectDependencies) = postProject
-		{488CEFC1-1EF4-4D1A-A4EA-B4659143CE47} = {488CEFC1-1EF4-4D1A-A4EA-B4659143CE47}
-	EndProjectSection
 EndProject
 Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "GmicSharpDocs", "GmicSharpDocs\GmicSharpDocs.shfbproj", "{91ED96E9-1591-4CC2-8D4D-25E9AD36FBB4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{AEE56C57-8341-4D8C-B525-15DAFA74C1B7} = {AEE56C57-8341-4D8C-B525-15DAFA74C1B7}
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenerateAssemblyVersionInfo", "GenerateAssemblyVersionInfo\GenerateAssemblyVersionInfo.csproj", "{488CEFC1-1EF4-4D1A-A4EA-B4659143CE47}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +24,6 @@ Global
 		{91ED96E9-1591-4CC2-8D4D-25E9AD36FBB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91ED96E9-1591-4CC2-8D4D-25E9AD36FBB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91ED96E9-1591-4CC2-8D4D-25E9AD36FBB4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{488CEFC1-1EF4-4D1A-A4EA-B4659143CE47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{488CEFC1-1EF4-4D1A-A4EA-B4659143CE47}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{488CEFC1-1EF4-4D1A-A4EA-B4659143CE47}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{488CEFC1-1EF4-4D1A-A4EA-B4659143CE47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

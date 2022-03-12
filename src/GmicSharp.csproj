@@ -47,11 +47,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="GenerateAssemblyVersionInfo\**" />
     <Compile Remove="GmicSharpDocs\**" />
-    <EmbeddedResource Remove="GenerateAssemblyVersionInfo\**" />
     <EmbeddedResource Remove="GmicSharpDocs\**" />
-    <None Remove="GenerateAssemblyVersionInfo\**" />
     <None Remove="GmicSharpDocs\**" />
   </ItemGroup>
 
