@@ -16,7 +16,6 @@ namespace GmicSharp.Interop
 {
     internal sealed class GmicNativeMethods
     {
-        private readonly GetLibraryVersionDelegate getLibraryVersion;
         private readonly GmicImageListCreateDelegate gmicImageListCreate;
         private readonly GmicImageListDestroyDelegate gmicImageListDestroy;
         private readonly GmicImageListGetCountDelegate gmicImageListGetCount;
@@ -62,7 +61,6 @@ namespace GmicSharp.Interop
 
         private GmicNativeMethods(IntPtr libraryHandle, LibraryLoader loader)
         {
-            getLibraryVersion = loader.GetExport<GetLibraryVersionDelegate>(libraryHandle, "GetLibraryVersion");
             gmicImageListCreate = loader.GetExport<GmicImageListCreateDelegate>(libraryHandle, "GmicImageListCreate");
             gmicImageListDestroy = loader.GetExport<GmicImageListDestroyDelegate>(libraryHandle, "GmicImageListDestroy");
             gmicImageListGetCount = loader.GetExport<GmicImageListGetCountDelegate>(libraryHandle, "GmicImageListGetCount");
@@ -101,12 +99,6 @@ namespace GmicSharp.Interop
             {
                 instance = new GmicNativeMethods(libraryHandle, loader);
             }
-        }
-
-
-        internal void GetLibraryVersion(out int major, out int minor, out int patch)
-        {
-            getLibraryVersion(out major, out minor, out patch);
         }
 
         internal SafeGmicImageList GmicImageListCreate()

@@ -17,19 +17,21 @@ namespace GmicSharp.Interop
     [StructLayout(LayoutKind.Sequential)]
     internal sealed class GmicImageListImageData
     {
+        public int version;
         public uint width;
         public uint height;
-        public GmicImageListPixelData pixels;
         public NativeImageFormat format;
+        public GmicImageListPixelData pixels;
         public IntPtr name;
         public int nameLength;
 
         public GmicImageListImageData()
         {
+            version = 1;
             width = 0;
             height = 0;
-            pixels = new GmicImageListPixelData();
             format = NativeImageFormat.Gray;
+            pixels = new GmicImageListPixelData();
             name = IntPtr.Zero;
             nameLength = 0;
         }

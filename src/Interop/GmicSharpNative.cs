@@ -27,62 +27,14 @@ namespace GmicSharp.Interop
         /// </summary>
         /// <exception cref="GmicException">
         /// The native library could not be found or loaded.
-        ///
-        /// or
-        ///
-        /// The GmicSharp and libGmicSharpNative versions do not match.
         /// </exception>
         public static void Initialize()
         {
             if (!initialized)
             {
                 LoadNativeLibrary();
-                CheckLibraryVersion();
 
                 initialized = true;
-            }
-        }
-
-        private static void CheckLibraryVersion()
-        {
-            if (nativeLibraryHandle == IntPtr.Zero)
-            {
-                throw new InvalidOperationException("Must call LoadNativeLibrary() before this method.");
-            }
-
-            GmicNativeMethods.Instance.GetLibraryVersion(out int nativeLibMajorVersion, out int nativeLibMinorVersion, out _);
-
-            Version managedLibVersion = AssemblyVersionInfo.LibraryVersion;
-
-            if (managedLibVersion.Major == 0)
-            {
-                // If the major version is 0 the major and minor versions must be the same.
-                // TODO: Remove this branch after version 1.0.0 is released.
-
-                if (managedLibVersion.Major != nativeLibMajorVersion ||
-                    managedLibVersion.Minor != nativeLibMinorVersion)
-                {
-                    string message = string.Format(CultureInfo.InvariantCulture,
-                                                   "Version mismatch between GmicSharp {0}.{1} and libGmicSharpNative {2}.{3}. The major and minor versions must be the same.",
-                                                   managedLibVersion.Major,
-                                                   managedLibVersion.Minor,
-                                                   nativeLibMajorVersion,
-                                                   nativeLibMinorVersion);
-
-                    throw new GmicException(message);
-                }
-            }
-            else
-            {
-                if (managedLibVersion.Major != nativeLibMajorVersion)
-                {
-                    string message = string.Format(CultureInfo.InvariantCulture,
-                                                   "Version mismatch between GmicSharp {0} and libGmicSharpNative {1}. The major versions must be the same.",
-                                                   managedLibVersion.Major,
-                                                   nativeLibMajorVersion);
-
-                    throw new GmicException(message);
-                }
             }
         }
 
